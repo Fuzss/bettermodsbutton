@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[${minForgeVersion},)"
+license="Mozilla Public License 2.0"
+issueTrackerURL="${modIssueUrl}"
+
+[[mods]]
+    modId="${modId}"
+    displayName="${modName}"
+    description="${modDescription}"
+    version="${modVersion}"
+    authors="${modAuthor}"
+    logoFile="logo.png"
+    logoBlur=false
+    displayURL="${modPageUrl}"
+    updateJSONURL="${modUpdateUrl}"
+
+[[dependencies.${modId}]]
+    modId="forge"
+    mandatory=true
+    versionRange="[${minForgeVersion},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${modId}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[${minMinecraftVersion},${nextMinecraftVersion})"
+    ordering="NONE"
+    side="BOTH"
+
+[modproperties.${modId}]
+    catalogueImageIcon="avatar.png"
+    configuredBackground="minecraft:textures/block/honeycomb_block.png"
