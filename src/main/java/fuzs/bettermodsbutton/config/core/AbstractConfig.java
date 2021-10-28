@@ -31,23 +31,32 @@ public abstract class AbstractConfig {
     /**
      * setup config from config holder
      * @param builder builder to add entries to
+     * @param saveCallback register save callback
      */
-    public final void setupConfig(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback addCallback) {
-        setupConfig(this, builder, addCallback);
+    public final void setupConfig(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveCallback) {
+        setupConfig(this, builder, saveCallback);
     }
 
     /**
      * add config entries
      * @param builder builder to add entries to
+     * @param saveCallback register save callback
      */
-    protected void addToBuilder(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback addCallback) {
+    protected void addToBuilder(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveCallback) {
     }
 
-    protected void addComment(String... comment) {
+    /**
+     * @param comment comment for this category
+     */
+    protected final void addComment(String... comment) {
         this.addComment(Lists.newArrayList(), comment);
     }
 
-    protected void addComment(List<String> path, String... comment) {
+    /**
+     * @param path category path for <code>comment</code>
+     * @param comment comment
+     */
+    protected final void addComment(List<String> path, String... comment) {
         this.categoryComments.put(path, comment);
     }
 
@@ -55,16 +64,19 @@ public abstract class AbstractConfig {
      * adds entries, category, and category comment
      * @param config config to build
      * @param builder builder to add entries to
+     * @param saveCallback register save callback
      */
-    protected static void setupConfig(AbstractConfig config, ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback addCallback) {
+    protected static void setupConfig(AbstractConfig config, ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveCallback) {
         final boolean withCategory = config.name != null && !config.name.isEmpty();
         if (withCategory) {
             final String[] comment = config.categoryComments.get(Lists.<String>newArrayList());
             if (comment != null) builder.comment(comment);
             builder.push(config.name);
         }
-        ConfigBuilder.serialize(builder, addCallback, Maps.newHashMap(config.categoryComments), config);
-        config.addToBuilder(builder, addCallback);
+        // currently, supports both registering via annotation system and builder method
+        ConfigBuilder.serialize(builder, saveCallback, Maps.newHashMap(config.categoryComments), config);
+        // legacy method, kept for now for types unsupported by annotation system
+        config.addToBuilder(builder, saveCallback);
         if (withCategory) {
             builder.pop();
         }
