@@ -7,13 +7,13 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -34,23 +34,17 @@ public class ConfigHolderImpl<C extends AbstractConfig, S extends AbstractConfig
     private final S server;
     private final List<Runnable> clientCallbacks = Lists.newArrayList();
     private final List<Runnable> serverCallbacks = Lists.newArrayList();
+    private String clientFileName = "";
+    private String serverFileName = "";
 
     /**
      * client config will only be created on physical client
      * @param client client config factory
      * @param server server config factory
      */
-    ConfigHolderImpl(String modId, @Nonnull Supplier<C> client, @Nonnull Supplier<S> server) {
+    ConfigHolderImpl(@Nonnull Supplier<C> client, @Nonnull Supplier<S> server) {
         this.client = FMLEnvironment.dist.isClient() ? client.get() : null;
         this.server = server.get();
-        final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener((final ModConfig.ModConfigEvent evt) -> this.onModConfig(evt, modId));
-        // ModConfigEvent sometimes doesn't fire on start-up, resulting in config values not being synced, so we force it once
-        // not sure if this is still an issue though
-        modBus.addListener((final FMLLoadCompleteEvent evt) -> {
-            this.clientCallbacks.forEach(Runnable::run);
-            this.serverCallbacks.forEach(Runnable::run);
-        });
     }
 
     @SubscribeEvent
@@ -66,6 +60,8 @@ public class ConfigHolderImpl<C extends AbstractConfig, S extends AbstractConfig
                 case SERVER:
                     this.serverCallbacks.forEach(Runnable::run);
                     break;
+                case COMMON:
+                    throw new RuntimeException("Common config type not supported");
             }
             if (evt instanceof ModConfig.Reloading) {
                 BetterModsButton.LOGGER.info("Reloading {} config for {}", type.extension(), modId);
@@ -73,30 +69,62 @@ public class ConfigHolderImpl<C extends AbstractConfig, S extends AbstractConfig
         }
     }
 
-    /**
-     * register configs if present
-     * @param context mod context to register to
-     */
-    public void addConfigs(ModLoadingContext context) {
-        if (this.client != null) {
-            context.registerConfig(ModConfig.Type.CLIENT, this.buildSpec(this.client, ModConfig.Type.CLIENT));
-        }
-        if (this.server != null) {
-            context.registerConfig(ModConfig.Type.SERVER, this.buildSpec(this.server, ModConfig.Type.SERVER));
+    private  <T> void addCallback(ModConfig.Type type, ForgeConfigSpec.ConfigValue<T> entry, Consumer<T> save) {
+        switch (type) {
+            case CLIENT:
+                this.clientCallbacks.add(() -> save.accept(entry.get()));
+                break;
+            case SERVER:
+                this.serverCallbacks.add(() -> save.accept(entry.get()));
+                break;
+            case COMMON:
+                throw new RuntimeException("Common config type not supported");
         }
     }
 
-    /** register configs, allows for custom file names
+    public void addConfigs(String modId) {
+        final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener((final ModConfig.ModConfigEvent evt) -> this.onModConfig(evt, modId));
+        // ModConfigEvent sometimes doesn't fire on start-up, resulting in config values not being synced, so we force it once
+        // not sure if this is still an issue though
+//        modBus.addListener((final FMLLoadCompleteEvent evt) -> {
+//            this.clientCallbacks.forEach(Runnable::run);
+//            this.serverCallbacks.forEach(Runnable::run);
+//        });
+        this.addConfigs(ModLoadingContext.get());
+    }
+
+    /**
+     * register configs
      * @param context mod context to register to
-     * @param clientName client config file name
-     * @param serverName server config file name
      */
-    public void addConfigs(ModLoadingContext context, String clientName, String serverName) {
+    private void addConfigs(ModLoadingContext context) {
         if (this.client != null) {
-            context.registerConfig(ModConfig.Type.CLIENT, this.buildSpec(this.client, ModConfig.Type.CLIENT), clientName);
+            // can't use a lambda expression for a functional interface, if the method in the functional interface has type parameters
+            final ConfigCallback addCallback = new ConfigCallback() {
+                @Override
+                public <T> void accept(ForgeConfigSpec.ConfigValue<T> entry, Consumer<T> save) {
+                    ConfigHolderImpl.this.addCallback(ModConfig.Type.CLIENT, entry, save);
+                }
+            };
+            if (this.clientFileName.isEmpty()) {
+                context.registerConfig(ModConfig.Type.CLIENT, this.buildSpec(this.client, addCallback));
+            } else {
+                context.registerConfig(ModConfig.Type.CLIENT, this.buildSpec(this.client, addCallback), this.clientFileName);
+            }
         }
         if (this.server != null) {
-            context.registerConfig(ModConfig.Type.SERVER, this.buildSpec(this.server, ModConfig.Type.SERVER), serverName);
+            final ConfigCallback addCallback = new ConfigCallback() {
+                @Override
+                public <T> void accept(ForgeConfigSpec.ConfigValue<T> entry, Consumer<T> save) {
+                    ConfigHolderImpl.this.addCallback(ModConfig.Type.SERVER, entry, save);
+                }
+            };
+            if (this.serverFileName.isEmpty()) {
+                context.registerConfig(ModConfig.Type.SERVER, this.buildSpec(this.server, addCallback));
+            } else {
+                context.registerConfig(ModConfig.Type.SERVER, this.buildSpec(this.server, addCallback), this.serverFileName);
+            }
         }
     }
 
@@ -105,10 +133,20 @@ public class ConfigHolderImpl<C extends AbstractConfig, S extends AbstractConfig
      * @param config config to build
      * @return built spec
      */
-    private ForgeConfigSpec buildSpec(AbstractConfig config, ModConfig.Type type) {
+    private ForgeConfigSpec buildSpec(AbstractConfig config, ConfigCallback addCallback) {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        config.setupConfig(builder, type);
+        config.setupConfig(builder, addCallback);
         return builder.build();
+    }
+
+    public ConfigHolderImpl<C, S> setClientFileName(String fileName) {
+        this.clientFileName = fileName;
+        return this;
+    }
+
+    public ConfigHolderImpl<C, S> setServerFileName(String fileName) {
+        this.serverFileName = fileName;
+        return this;
     }
 
     @Override
@@ -119,5 +157,15 @@ public class ConfigHolderImpl<C extends AbstractConfig, S extends AbstractConfig
     @Override
     public S server() {
         return this.server;
+    }
+
+    @Override
+    public void addClientCallback(Runnable callback) {
+        this.clientCallbacks.add(callback);
+    }
+
+    @Override
+    public void addServerCallback(Runnable callback) {
+        this.serverCallbacks.add(callback);
     }
 }

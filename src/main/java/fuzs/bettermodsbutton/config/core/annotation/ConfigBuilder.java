@@ -2,34 +2,33 @@ package fuzs.bettermodsbutton.config.core.annotation;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.*;
+import fuzs.bettermodsbutton.config.core.ConfigHolder;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
-public class AnnotatedConfigBuilder {
+public class ConfigBuilder {
 
-    public static <T> void serialize(ForgeConfigSpec.Builder builder, BiConsumer<ForgeConfigSpec.ConfigValue<T>, Consumer<T>> saveConsumer, Object target) {
+    public static void serialize(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveConsumer, Object target) {
         serialize(builder, target.getClass(), saveConsumer, Maps.newHashMap(), target);
     }
 
-    public static <T> void serialize(ForgeConfigSpec.Builder builder, BiConsumer<ForgeConfigSpec.ConfigValue<T>, Consumer<T>> saveConsumer, Class<?> target) {
+    public static void serialize(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveConsumer, Class<?> target) {
         serialize(builder, target, saveConsumer, Maps.newHashMap(), null);
     }
 
-    public static <T> void serialize(ForgeConfigSpec.Builder builder, BiConsumer<ForgeConfigSpec.ConfigValue<T>, Consumer<T>> saveConsumer, Map<List<String>, String[]> categoryComments, Object target) {
+    public static void serialize(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveConsumer, Map<List<String>, String[]> categoryComments, Object target) {
         serialize(builder, target.getClass(), saveConsumer, categoryComments, target);
     }
 
-    public static <T> void serialize(ForgeConfigSpec.Builder builder, BiConsumer<ForgeConfigSpec.ConfigValue<T>, Consumer<T>> saveConsumer, Map<List<String>, String[]> categoryComments, Class<?> target) {
+    public static void serialize(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveConsumer, Map<List<String>, String[]> categoryComments, Class<?> target) {
         serialize(builder, target, saveConsumer, categoryComments, null);
     }
 
-    public static <T, S> void serialize(final ForgeConfigSpec.Builder builder, Class<? extends T> target, final BiConsumer<ForgeConfigSpec.ConfigValue<S>, Consumer<S>> saveConsumer, Map<List<String>, String[]> categoryComments, @Nullable T instance) {
+    public static <T> void serialize(final ForgeConfigSpec.Builder builder, Class<? extends T> target, final ConfigHolder.ConfigCallback saveConsumer, Map<List<String>, String[]> categoryComments, @Nullable T instance) {
         Multimap<List<String>, Field> pathToField = HashMultimap.create();
         for (Field field : target.getDeclaredFields()) {
             Config annotation = field.getDeclaredAnnotation(Config.class);
@@ -39,8 +38,12 @@ public class AnnotatedConfigBuilder {
         }
         for (Map.Entry<List<String>, Collection<Field>> entry : pathToField.asMap().entrySet()) {
             final List<String> path = entry.getKey();
-            Optional.ofNullable(categoryComments.get(path)).ifPresent(builder::comment);
-            builder.push(path);
+            List<String> currentPath = Lists.newArrayList();
+            for (String category : path) {
+                currentPath.add(category);
+                Optional.ofNullable(categoryComments.remove(currentPath)).ifPresent(builder::comment);
+                builder.push(category);
+            }
             for (Field field : entry.getValue()) {
                 field.setAccessible(true);
                 final boolean isStatic = Modifier.isStatic(field.getModifiers());
@@ -49,16 +52,20 @@ public class AnnotatedConfigBuilder {
             }
             builder.pop(path.size());
         }
+        if (!categoryComments.isEmpty()) {
+            throw new RuntimeException(String.format("Unknown paths in category comments map: %s", categoryComments.keySet()));
+        }
     }
 
-    private static <T> void buildConfig(final ForgeConfigSpec.Builder builder, final BiConsumer<ForgeConfigSpec.ConfigValue<T>, Consumer<T>> saveConsumer, @Nullable Object instance, Field field, Config annotation) {
+    @SuppressWarnings("rawtypes")
+    private static void buildConfig(final ForgeConfigSpec.Builder builder, final ConfigHolder.ConfigCallback saveConsumer, @Nullable Object instance, Field field, Config annotation) {
         String path = annotation.name();
         if (path.isEmpty()) {
             // https://stackoverflow.com/a/46945726
 //            path = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(field.getName()), " "));
             path = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, field.getName());
         }
-        String[] description = annotation.description();
+        final String[] description = annotation.description();
         if (description.length != 0) {
             builder.comment(description);
         }
@@ -103,7 +110,7 @@ public class AnnotatedConfigBuilder {
                 max = floatRange.max();
             }
             final ForgeConfigSpec.DoubleValue configValue = builder.defineInRange(path, (float) defaultValue, min, max);
-            saveConsumer.accept((ForgeConfigSpec.ConfigValue<T>) configValue, v -> {
+            saveConsumer.accept(configValue, v -> {
                 try {
                     field.set(instance, configValue.get().floatValue());
                 } catch(IllegalAccessException e) {
@@ -122,19 +129,8 @@ public class AnnotatedConfigBuilder {
         } else if (type == String.class) {
             Config.AllowedValues allowedValues = field.getDeclaredAnnotation(Config.AllowedValues.class);
             if (allowedValues != null && allowedValues.values().length != 0) {
-                description = ObjectArrays.concat(description, String.format("Allowed Values: %s", String.join(", ", allowedValues.values())));
-                builder.comment(description);
-                addCallback(saveConsumer, builder.define(path, (String) defaultValue, o -> {
-                    if (o instanceof  String) {
-                        String value = ((String) o).toLowerCase(Locale.ROOT);
-                        for (String allowedValue : allowedValues.values()) {
-                            if (allowedValue.toLowerCase(Locale.ROOT).equals(value)) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }), field, instance);
+                builder.comment(ObjectArrays.concat(description, String.format("Allowed Values: %s", String.join(", ", allowedValues.values()))));
+                addCallback(saveConsumer, builder.define(path, (String) defaultValue, o -> testAllowedValues(allowedValues, o)), field, instance);
             } else {
                 addCallback(saveConsumer, builder.define(path, (String) defaultValue), field, instance);
             }
@@ -142,33 +138,35 @@ public class AnnotatedConfigBuilder {
             Config.AllowedValues allowedValues = field.getDeclaredAnnotation(Config.AllowedValues.class);
             if (allowedValues != null && allowedValues.values().length != 0) {
                 // allowed values line handled by forge
-                addCallback(saveConsumer, builder.defineEnum(path, (Enum) defaultValue, o -> {
-                    String value = null;
-                    if (o instanceof String) {
-                        value = ((String) o);
-                    } else if (o instanceof Enum) {
-                        value = ((Enum<?>) o).name();
-                    }
-                    if (value != null) {
-                        value = value.toLowerCase(Locale.ROOT);
-                        for (String allowedValue : allowedValues.values()) {
-                            if (allowedValue.toLowerCase(Locale.ROOT).equals(value)) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }), field, instance);
+                addCallback(saveConsumer, builder.defineEnum(path, (Enum) defaultValue, o -> testAllowedValues(allowedValues, o)), field, instance);
             } else {
                 addCallback(saveConsumer, builder.defineEnum(path, (Enum) defaultValue), field, instance);
             }
         } else if (type == List.class) {
-            // TODO
+            Config.AllowedValues allowedValues = field.getDeclaredAnnotation(Config.AllowedValues.class);
+            if (allowedValues != null && allowedValues.values().length != 0) {
+                builder.comment(ObjectArrays.concat(description, String.format("Allowed Values: %s", String.join(", ", allowedValues.values()))));
+                addCallback(saveConsumer, builder.defineList(path, (List<?>) defaultValue, o -> testAllowedValues(allowedValues, o)), field, instance);
+            } else {
+                addCallback(saveConsumer, builder.defineList(path, (List<?>) defaultValue, o -> true), field, instance);
+            }
         }
     }
 
-    private static <T> void addCallback(BiConsumer<ForgeConfigSpec.ConfigValue<T>, Consumer<T>> saveConsumer, ForgeConfigSpec.ConfigValue<?> configValue, Field field, Object instance) {
-        saveConsumer.accept((ForgeConfigSpec.ConfigValue<T>) configValue, v -> {
+    private static boolean testAllowedValues(Config.AllowedValues allowedValues, Object o) {
+        if (o != null) {
+            String value = o instanceof Enum<?> ? ((Enum<?>) o).name() : o.toString();
+            for (String allowedValue : allowedValues.values()) {
+                if (allowedValue.equals(value)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static void addCallback(ConfigHolder.ConfigCallback addCallback, ForgeConfigSpec.ConfigValue<?> configValue, Field field, Object instance) {
+        addCallback.accept(configValue, v -> {
             try {
                 field.set(instance, configValue.get());
             } catch(IllegalAccessException e) {
