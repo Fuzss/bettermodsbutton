@@ -15,6 +15,6 @@ public class ClientConfig extends AbstractConfig {
     public boolean updateNotification = false;
 
     public ClientConfig() {
-        super("general");
+        super("");
     }
 }

@@ -13,6 +13,7 @@ import java.util.*;
 
 /**
  * build config values from given class, values are marked via {@link Config} annotation
+ * large based upon Quark's (https://github.com/VazkiiMods/Quark) vazkii.quark.base.module.config.ConfigObjectSerializer class
  */
 public class ConfigBuilder {
 
