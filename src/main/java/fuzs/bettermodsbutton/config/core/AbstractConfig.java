@@ -66,11 +66,11 @@ public abstract class AbstractConfig {
      * @param builder builder to add entries to
      * @param saveCallback register save callback
      */
-    protected static void setupConfig(AbstractConfig config, ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveCallback) {
+    public static void setupConfig(AbstractConfig config, ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveCallback) {
         final boolean withCategory = config.name != null && !config.name.isEmpty();
         if (withCategory) {
             final String[] comment = config.categoryComments.get(Lists.<String>newArrayList());
-            if (comment != null) builder.comment(comment);
+            if (comment != null && comment.length != 0) builder.comment(comment);
             builder.push(config.name);
         }
         // currently, supports both registering via annotation system and builder method
