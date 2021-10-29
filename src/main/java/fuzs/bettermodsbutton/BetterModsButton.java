@@ -1,7 +1,6 @@
 package fuzs.bettermodsbutton;
 
 import fuzs.bettermodsbutton.config.ClientConfig;
-import fuzs.bettermodsbutton.config.ServerConfig;
 import fuzs.bettermodsbutton.config.core.AbstractConfig;
 import fuzs.bettermodsbutton.config.core.ConfigHolder;
 import fuzs.bettermodsbutton.config.core.ConfigHolderImpl;
@@ -20,7 +19,7 @@ public class BetterModsButton {
     public static final Logger LOGGER = LogManager.getLogger(NAME);
 
     @SuppressWarnings("Convert2MethodRef")
-    public static final ConfigHolder<ClientConfig, AbstractConfig> CONFIG = ConfigHolder.of(() -> new ClientConfig(), () -> new ServerConfig());
+    public static final ConfigHolder<ClientConfig, AbstractConfig> CONFIG = ConfigHolder.client(() -> new ClientConfig());
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {

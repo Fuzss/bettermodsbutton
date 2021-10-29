@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v1.0.2-1.16.5] - 2021-10-29
+## Added
+- Support for inner configs for annotation system
+
 ## [v1.0.1-1.16.5] - 2021-10-28
 ## Added
 - Added annotation based config system, config will be regenerated
