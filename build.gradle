@@ -91,7 +91,7 @@ dependencies {
 //    annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
 
     runtimeOnly fg.deobf("curse.maven:configured-457570:3434071")
-    runtimeOnly fg.deobf("curse.maven:catalogue-459701:3399554")
+    implementation fg.deobf("curse.maven:catalogue-459701:3399554")
 
     // shadow demo
 //    implementation "com.github.Ocelot5836:Sonar:ef5b90d"
@@ -328,7 +328,7 @@ task copyJarToDir(type: Copy) {
         into project.findProperty('buildJarOutputDir')
         // add build number to be able to distinguish jars when testing thorough official launcher
         // build number is stored in global gradle.properties
-        rename { fileName -> fileName.replace("v${project.modversion}", "v${project.modversion}-build${uniqueBuildNumber}") }
+        rename { fileName -> fileName.replace("v${project.modversion}", "v${project.modversion}.${uniqueBuildNumber}") }
     }
 }
 

@@ -1,8 +1,8 @@
-package fuzs.bettermodsbutton.config.core;
+package fuzs.bettermodsbutton.lib.config;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import fuzs.bettermodsbutton.config.core.annotation.ConfigBuilder;
+import fuzs.bettermodsbutton.lib.config.annotation.ConfigBuilder;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
@@ -43,6 +43,12 @@ public abstract class AbstractConfig {
      * @param saveCallback register save callback
      */
     protected void addToBuilder(ForgeConfigSpec.Builder builder, ConfigHolder.ConfigCallback saveCallback) {
+    }
+
+    /**
+     * transform config options to proper type after reload, e.g. strings to registry entries
+     */
+    protected void afterConfigReload() {
     }
 
     /**

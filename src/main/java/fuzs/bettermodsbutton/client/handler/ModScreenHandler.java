@@ -1,8 +1,12 @@
 package fuzs.bettermodsbutton.client.handler;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import fuzs.bettermodsbutton.BetterModsButton;
+import fuzs.bettermodsbutton.compat.catalogue.CatalogueModListFactory;
+import fuzs.bettermodsbutton.lib.core.ModLoaderEnvironment;
 import net.minecraft.client.gui.screen.IngameMenuScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -44,7 +48,7 @@ public class ModScreenHandler {
                         widget.x = evt.getGui().width / 2 - 100;
                     });
                     modsButton = new Button(evt.getGui().width / 2 - 100, evt.getGui().height / 4 + 48 + 24 * 3 - 12, 200, 20, this.getModsComponent(modCount, false), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case NONE:
@@ -55,19 +59,19 @@ public class ModScreenHandler {
                     break;
                 case LEFT_TO_REALMS:
                     modsButton = new Button(evt.getGui().width / 2 - 100, evt.getGui().height / 4 + 48 + 24 * 2, 98, 20, this.getModsComponent(modCount, true), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case RIGHT_TO_REALMS:
                     this.getButton(evt.getWidgetList(), "menu.online").ifPresent(widget -> widget.x = evt.getGui().width / 2 - 100);
                     modsButton = new Button(evt.getGui().width / 2 + 2, evt.getGui().height / 4 + 48 + 24 * 2, 98, 20, this.getModsComponent(modCount, true), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case REPLACE_REALMS:
                     this.getButton(evt.getWidgetList(), "menu.online").ifPresent(evt::removeWidget);
                     modsButton = new Button(evt.getGui().width / 2 - 100, evt.getGui().height / 4 + 48 + 24 * 2, 200, 20, this.getModsComponent(modCount, false), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
             }
@@ -89,26 +93,26 @@ public class ModScreenHandler {
                         }
                     }
                     modsButton = new Button(evt.getGui().width / 2 - 102, evt.getGui().height / 4 + 96 + -16 - 12, 204, 20, this.getModsComponent(modCount, false), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case REPLACE_FEEDBACK:
                     this.getButton(evt.getWidgetList(), "menu.sendFeedback").ifPresent(evt::removeWidget);
                     modsButton = new Button(evt.getGui().width / 2 - 102, evt.getGui().height / 4 + 72 + -16, 98, 20, this.getModsComponent(modCount, true), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case REPLACE_BUGS:
                     this.getButton(evt.getWidgetList(), "menu.reportBugs").ifPresent(evt::removeWidget);
                     modsButton = new Button(evt.getGui().width / 2 + 4, evt.getGui().height / 4 + 72 + -16, 98, 20, this.getModsComponent(modCount, true), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case REPLACE_FEEDBACK_AND_BUGS:
                     this.getButton(evt.getWidgetList(), "menu.sendFeedback").ifPresent(evt::removeWidget);
                     this.getButton(evt.getWidgetList(), "menu.reportBugs").ifPresent(evt::removeWidget);
                     modsButton = new Button(evt.getGui().width / 2 - 102, evt.getGui().height / 4 + 72 + -16, 204, 20, this.getModsComponent(modCount, false), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case REPLACE_AND_MOVE_LAN:
@@ -120,7 +124,7 @@ public class ModScreenHandler {
                         widget.y = evt.getGui().height / 4 + 72 + -16;
                     });
                     modsButton = new Button(evt.getGui().width / 2 + 4, evt.getGui().height / 4 + 96 + -16, 98, 20, this.getModsComponent(modCount, true), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
                 case INSERT_AND_MOVE_LAN:
@@ -137,7 +141,7 @@ public class ModScreenHandler {
                         widget.y = evt.getGui().height / 4 + 96 + -16 - 12;
                     });
                     modsButton = new Button(evt.getGui().width / 2 + 4, evt.getGui().height / 4 + 96 + -16 + 12, 98, 20, this.getModsComponent(modCount, true), button -> {
-                        evt.getGui().getMinecraft().setScreen(new ModListScreen(evt.getGui()));
+                        evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                     });
                     break;
             }
@@ -176,6 +180,25 @@ public class ModScreenHandler {
             component = component.append(" ").append(new TranslationTextComponent(translationKey, ModList.get().size()));
         }
         return component;
+    }
+    
+    private static Screen createModListScreen(Screen lastScreen) {
+        if (!BetterModsButton.CONFIG.client().forceDirtBackground) {
+            return new ModListScreen(lastScreen);
+        }
+        if (ModLoaderEnvironment.isModLoaded("catalogue")) {
+            // don't want to risk catalogue renaming packages / classes at some points and all of this breaking
+            try {
+                return CatalogueModListFactory.createCatalogueModListScreen();
+            } catch (ClassNotFoundException ignored) {
+            }
+        }
+        return new ModListScreen(lastScreen) {
+            @Override
+            public void renderBackground(MatrixStack pMatrixStack, int pVOffset) {
+                this.renderDirtBackground(pVOffset);
+            }
+        };
     }
 
     public enum MainMenuMode {

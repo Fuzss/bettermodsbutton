@@ -1,9 +1,9 @@
-package fuzs.bettermodsbutton.config.core.annotation;
+package fuzs.bettermodsbutton.lib.config.annotation;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.*;
-import fuzs.bettermodsbutton.config.core.AbstractConfig;
-import fuzs.bettermodsbutton.config.core.ConfigHolder;
+import fuzs.bettermodsbutton.lib.config.AbstractConfig;
+import fuzs.bettermodsbutton.lib.config.ConfigHolder;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import javax.annotation.Nonnull;
@@ -84,6 +84,7 @@ public class ConfigBuilder {
                 field.setAccessible(true);
                 final boolean isStatic = Modifier.isStatic(field.getModifiers());
                 if (!isStatic) Objects.requireNonNull(instance, "Null instance for non-static field");
+                if (Modifier.isFinal(field.getModifiers())) throw new RuntimeException("Field may not be final");
                 buildConfig(builder, saveCallback, isStatic ? null : instance, field, field.getDeclaredAnnotation(Config.class));
             }
             builder.pop(path.size());

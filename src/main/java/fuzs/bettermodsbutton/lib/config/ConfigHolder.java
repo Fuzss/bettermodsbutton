@@ -1,4 +1,4 @@
-package fuzs.bettermodsbutton.config.core;
+package fuzs.bettermodsbutton.lib.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;

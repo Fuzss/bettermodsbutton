@@ -1,4 +1,4 @@
-package fuzs.bettermodsbutton.config.core.annotation;
+package fuzs.bettermodsbutton.lib.config.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * config annotation for individual config fields
- * a file containing these annotations needs to be registered via a {@link fuzs.bettermodsbutton.config.core.ConfigHolder}
+ * a file containing these annotations needs to be registered via a {@link fuzs.bettermodsbutton.lib.config.ConfigHolder}
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
