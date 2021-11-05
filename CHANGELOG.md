@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v1.0.4-1.16.5] - 2021-11-05
+### Added
+- Added button placement option "NO_CHANGE" to not do anything with the main menu screen for better mod compatibility
+### Changed
+- The main menu button will now only affect the vanilla main menu screen (so your custom PackMenu screen will no longer be messed with)
+
 ## [v1.0.3-1.16.5] - 2021-11-02
 ### Changed
 - Added dirt background for mod list when opened from inside a world
