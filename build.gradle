@@ -90,8 +90,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${forgeVersion}"
 //    annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
 
-    runtimeOnly fg.deobf("curse.maven:configured-457570:3434071")
     implementation fg.deobf("curse.maven:catalogue-459701:3399554")
+    runtimeOnly fg.deobf("curse.maven:configmenusforge-544048:3518697")
 
     // shadow demo
 //    implementation "com.github.Ocelot5836:Sonar:ef5b90d"

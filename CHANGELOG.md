@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v1.0.5-1.16.5] - 2021-11-07
+### Fixed
+- Fixed realms notification widgets not being moved together with the button
+
 ## [v1.0.4-1.16.5] - 2021-11-05
 ### Added
 - Added button placement option "NO_CHANGE" to not do anything with the main menu screen for better mod compatibility

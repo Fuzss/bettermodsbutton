@@ -57,6 +57,13 @@ public class ModScreenHandler {
                         widget.y -= 12;
                     }
                 }
+                // move realms notification widget up by 12 pixels as the button itself, seems to be the easiest way without having to rewrite code
+                // field name: realmsNotificationsScreen
+                final Screen realmsNotificationsScreen = ObfuscationReflectionHelper.getPrivateValue(MainMenuScreen.class, (MainMenuScreen) evt.getGui(), "field_183503_M");
+                if (realmsNotificationsScreen != null) {
+                    // height is only used for widget placement, it is divided by 4
+                    realmsNotificationsScreen.height -= 48;
+                }
                 this.getButton(evt.getWidgetList(), "menu.online").ifPresent(widget -> {
                     widget.setWidth(200);
                     widget.x = evt.getGui().width / 2 - 100;
@@ -78,12 +85,20 @@ public class ModScreenHandler {
                 break;
             case RIGHT_TO_REALMS:
                 this.getButton(evt.getWidgetList(), "menu.online").ifPresent(widget -> widget.x = evt.getGui().width / 2 - 100);
+                // field name: realmsNotificationsScreen
+                final Screen realmsNotificationsScreen2 = ObfuscationReflectionHelper.getPrivateValue(MainMenuScreen.class, (MainMenuScreen) evt.getGui(), "field_183503_M");
+                if (realmsNotificationsScreen2 != null) {
+                    // width is only used for widget placement, it is divided by 2
+                    realmsNotificationsScreen2.width -= 204;
+                }
                 modsButton = new Button(evt.getGui().width / 2 + 2, evt.getGui().height / 4 + 48 + 24 * 2, 98, 20, this.getModsComponent(modCount, true), button -> {
                     evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                 });
                 break;
             case REPLACE_REALMS:
                 this.getButton(evt.getWidgetList(), "menu.online").ifPresent(evt::removeWidget);
+                // field name: realmsNotificationsScreen
+                ObfuscationReflectionHelper.setPrivateValue(MainMenuScreen.class, (MainMenuScreen) evt.getGui(), null, "field_183503_M");
                 modsButton = new Button(evt.getGui().width / 2 - 100, evt.getGui().height / 4 + 48 + 24 * 2, 200, 20, this.getModsComponent(modCount, false), button -> {
                     evt.getGui().getMinecraft().setScreen(createModListScreen(evt.getGui()));
                 });
