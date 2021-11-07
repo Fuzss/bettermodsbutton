@@ -8,6 +8,7 @@ public class CatalogueModListFactory {
 
     public static Screen createCatalogueModListScreen() throws ClassNotFoundException {
         return new CatalogueModListScreen() {
+
             @Override
             public void renderBackground(PoseStack pMatrixStack, int pVOffset) {
                 this.renderDirtBackground(pVOffset);

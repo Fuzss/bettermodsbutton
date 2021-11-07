@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 @Mod(BetterModsButton.MODID)
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class BetterModsButton {
-
     public static final String MODID = "bettermodsbutton";
     public static final String NAME = "Better Mods Button";
     public static final Logger LOGGER = LogManager.getLogger(NAME);
