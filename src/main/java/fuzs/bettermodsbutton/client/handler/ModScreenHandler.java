@@ -6,6 +6,7 @@ import fuzs.bettermodsbutton.compat.catalogue.CatalogueModListFactory;
 import fuzs.bettermodsbutton.config.ClientConfig;
 import fuzs.bettermodsbutton.lib.core.ModLoaderEnvironment;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -50,14 +51,7 @@ public class ModScreenHandler {
         Button modsButton = null;
         switch (BetterModsButton.CONFIG.client().mainMenuMode) {
             case INSERT_BELOW_REALMS -> {
-                for (GuiEventListener widget : evt.getListenersList()) {
-                    if (widget instanceof Button button)
-                        if (evt.getScreen().height / 4 + 48 + 72 + 12 <= button.y) {
-                            button.y += 12;
-                        } else {
-                            button.y -= 12;
-                        }
-                }
+                this.moveButtonsUpAndDown(evt.getListenersList(), evt.getScreen().height / 4 + 48 + 72 + 12);
                 // move realms notification widget up by 12 pixels as the button itself, seems to be the easiest way without having to rewrite code
                 // field name: realmsNotificationsScreen
                 final Screen realmsNotificationsScreen = ObfuscationReflectionHelper.getPrivateValue(TitleScreen.class, (TitleScreen) evt.getScreen(), "f_96726_");
@@ -111,14 +105,7 @@ public class ModScreenHandler {
         Button modsButton = null;
         switch (BetterModsButton.CONFIG.client().pauseScreenMode) {
             case INSERT_BELOW_FEEDBACK_AND_BUGS -> {
-                for (GuiEventListener widget : evt.getListenersList()) {
-                    if (widget instanceof Button button)
-                        if (evt.getScreen().height / 4 + 96 - 16 <= button.y) {
-                            button.y += 12;
-                        } else {
-                            button.y -= 12;
-                        }
-                }
+                this.moveButtonsUpAndDown(evt.getListenersList(), evt.getScreen().height / 4 + 96 - 16);
                 modsButton = new Button(evt.getScreen().width / 2 - 102, evt.getScreen().height / 4 + 96 - 16 - 12, 204, 20, this.getModsComponent(modCount, false), button -> {
                     evt.getScreen().getMinecraft().setScreen(createModListScreen(evt.getScreen()));
                 });
@@ -155,14 +142,7 @@ public class ModScreenHandler {
                 });
             }
             case INSERT_AND_MOVE_LAN -> {
-                for (GuiEventListener widget : evt.getListenersList()) {
-                    if (widget instanceof Button button)
-                        if (evt.getScreen().height / 4 + 96 - 16 <= button.y) {
-                            button.y += 12;
-                        } else {
-                            button.y -= 12;
-                        }
-                }
+                this.moveButtonsUpAndDown(evt.getListenersList(), evt.getScreen().height / 4 + 96 - 16);
                 this.getButton(evt.getListenersList(), "menu.shareToLan").ifPresent(widget -> {
                     widget.setWidth(204);
                     widget.x = evt.getScreen().width / 2 - 102;
@@ -177,6 +157,18 @@ public class ModScreenHandler {
         this.gameMenuNotification = new NotificationModUpdateScreen(BetterModsButton.CONFIG.client().updateNotification ? modsButton : null);
         this.gameMenuNotification.resize(evt.getScreen().getMinecraft(), evt.getScreen().width, evt.getScreen().height);
         this.gameMenuNotification.init();
+    }
+
+    private void moveButtonsUpAndDown(List<GuiEventListener> listeners, int splitAt) {
+        for (GuiEventListener widget : listeners) {
+            // plain text button is only used for copyright text on title screen, really shouldn't accidentally remove that (again...)
+            if (widget instanceof Button button && !(button instanceof PlainTextButton))
+                if (splitAt <= button.y) {
+                    button.y += 12;
+                } else {
+                    button.y -= 12;
+                }
+        }
     }
 
     private Optional<Button> getButton(List<GuiEventListener> widgets, String s) {
