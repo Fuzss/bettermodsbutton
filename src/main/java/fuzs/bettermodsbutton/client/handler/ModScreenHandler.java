@@ -33,7 +33,9 @@ public class ModScreenHandler {
         if (evt.getScreen().getClass() == TitleScreen.class) {
             this.handleMainMenu(evt);
         } else if (evt.getScreen() instanceof PauseScreen) {
-            this.handlePauseScreen(evt);
+            if (evt.getScreen().children().stream().anyMatch(listener -> listener instanceof Button)) {
+                this.handlePauseScreen(evt);
+            }
         }
     }
 

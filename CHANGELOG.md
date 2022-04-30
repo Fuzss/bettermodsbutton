@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v3.2.2-1.18.2] - 2022-04-30
+### Fixed
+- Fixed mods button still being shown on pause screen when pressing `F3` + `ESC`
+
 ## [v3.2.1-1.18.2] - 2022-04-08
 ### Fixed
 - Fixed Mojang copyright text on title screen being moved below screen area
