@@ -213,7 +213,8 @@ publishing {
             // from https://stackoverflow.com/a/50121790
             pom.withXml {
                 asNode().dependencies.dependency.each { dep ->
-                    if (["catalogue", "bettermodsbutton", "configmenusforge", "configured"].stream().anyMatch(mod -> dep.artifactId.last().value().last().contains(mod))) {
+                    // we need to exclude Forge itself, which could be problematic for any mod containing 'forge' in its name, but shouldn't really affect many though
+                    if (["catalogue", "bettermodsbutton", "configmenusforge", "configured", "forge"].stream().anyMatch(mod -> dep.artifactId.last().value().last().contains(mod))) {
                         assert dep.parent().remove(dep)
                     }
                 }
