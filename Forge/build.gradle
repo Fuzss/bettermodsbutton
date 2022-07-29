@@ -209,6 +209,7 @@ publishing {
             artifactId = "${modId}-forge"
             version = modVersion
             from components.java
+            fg.component(it)
             pom {
                 name = "${modName} [Forge]"
                 description = "${modDescription}"
@@ -242,7 +243,7 @@ publishing {
                     asNode().dependencies.dependency.each { dep ->
                         // Forge is weird as a dependency, so skip it along with quality of life mods
                         // use this approach to make excluding dependencies from Curse Maven more convenient
-                        if (["net.minecraftforge:forge", "curse.maven:catalogue", "curse.maven:configured", "curse.maven:configmenusforge", "fuzs.bettermodsbutton:bettermodsbutton-forge"].stream().anyMatch(mod -> "${dep.groupId.last().value()}:${dep.artifactId.last().value()}".startsWith(mod))) {
+                        if (["curse.maven:catalogue", "curse.maven:configured", "curse.maven:configmenusforge", "fuzs.bettermodsbutton:bettermodsbutton-forge"].stream().anyMatch(mod -> "${dep.groupId.last().value().last()}:${dep.artifactId.last().value().last()}".startsWith(mod))) {
                             assert dep.parent().remove(dep)
                         }
                     }
