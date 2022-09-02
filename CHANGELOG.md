@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.2.1-1.19.2] - 2022-09-02
+### Fixed
+- Fix mods button still rendering on an empty pause screen (opened using `F3` + `Esc`) if other mods render their buttons as well
+
 ## [v4.2.0-1.19.2] - 2022-08-21
 - Compiled for Minecraft 1.19.2
 

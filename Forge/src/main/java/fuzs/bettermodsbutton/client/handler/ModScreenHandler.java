@@ -2,6 +2,7 @@ package fuzs.bettermodsbutton.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.bettermodsbutton.config.ClientConfig;
+import fuzs.bettermodsbutton.mixin.client.accessor.PauseScreenAccessor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -15,34 +16,42 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.gui.ModListScreen;
 import net.minecraftforge.client.gui.TitleScreenModUpdateIndicator;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("CodeBlock2Expr")
 public class ModScreenHandler {
+    @Nullable
     private TitleScreenModUpdateIndicator modUpdateNotification;
 
-    @SubscribeEvent
-    public void onInitGui(final ScreenEvent.Init.Post evt) {
+    public void onScreen$Init$Post(final ScreenEvent.Init.Post evt) {
         // check for exact classes so we only apply to vanilla
         if (evt.getScreen().getClass() == TitleScreen.class) {
             this.handleMainMenu(evt);
         } else if (evt.getScreen().getClass() == PauseScreen.class) {
             // vanilla's pause screen can be blank, so we don't want to add our button then
-            if (evt.getScreen().children().stream().anyMatch(listener -> listener instanceof Button)) {
+            // was just checking if any buttons are present previously, but that would break together with other mods ignoring the empty screen, so we check the field directly instead
+            if (((PauseScreenAccessor) evt.getScreen()).getShowPauseMenu()) {
                 this.handlePauseScreen(evt);
             }
         }
     }
 
-    @SubscribeEvent
-    public void onDrawScreen(final ScreenEvent.Render evt) {
-        if (evt.getScreen() instanceof PauseScreen) {
-            this.modUpdateNotification.render(evt.getPoseStack(), evt.getMouseX(), evt.getMouseY(), evt.getPartialTick());
+    public void onScreen$Render(final ScreenEvent.Render evt) {
+        if (evt.getScreen().getClass() == PauseScreen.class) {
+            // this will still be null if we are on an empty pause screen (from pressing F3 + Esc)
+            if (this.modUpdateNotification != null) {
+                this.modUpdateNotification.render(evt.getPoseStack(), evt.getMouseX(), evt.getMouseY(), evt.getPartialTick());
+            }
+        }
+    }
+
+    public void onScreen$Closing(final ScreenEvent.Closing evt) {
+        if (evt.getScreen().getClass() == PauseScreen.class) {
+            this.modUpdateNotification = null;
         }
     }
 

@@ -14,7 +14,8 @@ public class BetterModsButtonClient {
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
         final ModScreenHandler handler = new ModScreenHandler();
-        MinecraftForge.EVENT_BUS.addListener(handler::onInitGui);
-        MinecraftForge.EVENT_BUS.addListener(handler::onDrawScreen);
+        MinecraftForge.EVENT_BUS.addListener(handler::onScreen$Init$Post);
+        MinecraftForge.EVENT_BUS.addListener(handler::onScreen$Render);
+        MinecraftForge.EVENT_BUS.addListener(handler::onScreen$Closing);
     }
 }
