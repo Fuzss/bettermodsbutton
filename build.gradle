@@ -4,7 +4,7 @@ buildscript {
 
         mavenCentral()
         maven { url = 'https://maven.minecraftforge.net' }
-//        maven { url = 'https://repo.spongepowered.org/maven' }
+        maven { url = 'https://repo.spongepowered.org/maven' }
         maven { url = 'https://maven.parchmentmc.org' }
         maven { url = "https://cursemaven.com" }
     }
@@ -12,7 +12,7 @@ buildscript {
     dependencies {
 
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-//        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
         classpath group: 'org.parchmentmc', name: 'librarian', version: '1.+'
     }
 }
@@ -27,7 +27,7 @@ apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'eclipse'
-//apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 ext.mcversion = "${minecraftVersion}"
@@ -59,17 +59,17 @@ minecraft {
                 jvmArgs '-ea', '-Xms1G', '-Xmx4G'
             }
 
-//            arg '--mixin.config': "META-INF/${project.modid}.mixins.json".toString()
+            arg '--mixin.config': "${project.modid}.mixins.json".toString()
             property 'fml.earlyprogresswindow', 'false'
-//            properties 'mixin.env.remapRefMap': 'true', 'mixin.env.refMapRemappingFile': "${project.projectDir}/build/createSrgToMcp/output.srg".toString()
+            properties 'mixin.env.remapRefMap': 'true', 'mixin.env.refMapRemappingFile': "${project.projectDir}/build/createSrgToMcp/output.srg".toString()
         }
 
         server {
 
             jvmArgs '-ea', '-Xms1G', '-Xmx4G'
             arg 'nogui'
-//            arg '--mixin.config': "META-INF/${project.modid}.mixins.json".toString()
-//            properties 'mixin.env.remapRefMap': 'true', 'mixin.env.refMapRemappingFile': "${project.projectDir}/build/createSrgToMcp/output.srg".toString()
+            arg '--mixin.config': "${project.modid}.mixins.json".toString()
+            properties 'mixin.env.remapRefMap': 'true', 'mixin.env.refMapRemappingFile': "${project.projectDir}/build/createSrgToMcp/output.srg".toString()
         }
     }
 }
@@ -81,7 +81,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${forgeVersion}"
-//    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation fg.deobf("curse.maven:catalogue-459701:3543625")
     runtimeOnly fg.deobf("curse.maven:configmenusforge-544048:3570070")
@@ -93,10 +93,10 @@ dependencies {
 //    implementation fg.deobf("curse.maven:puzzles-lib:<file-id>")
 }
 
-//mixin {
-//
-//    add sourceSets.main, "${project.modid}.refmap.json"
-//}
+mixin {
+    add sourceSets.main, "${project.modid}.refmap.json"
+    config "${modId}.mixins.json"
+}
 
 processResources {
 
@@ -154,8 +154,7 @@ ext.jarAttributes = [
         "Implementation-Vendor"     : project.modauthor.toLowerCase(),
         "Implementation-Vendor-Id"  : project.group,
         "Implementation-URL"        : "${modPageUrl}",
-        "Implementation-Timestamp"  : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-//        "MixinConfigs"              : "META-INF/${project.modid}.mixins.json"
+        "Implementation-Timestamp"  : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
 ]
 
 def createJarTask(def name, def type, def sources) {
