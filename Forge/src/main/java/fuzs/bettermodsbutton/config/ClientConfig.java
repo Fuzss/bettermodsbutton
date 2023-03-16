@@ -10,7 +10,6 @@ public class ClientConfig {
     public final ForgeConfigSpec.BooleanValue modCount;
     public final ForgeConfigSpec.EnumValue<PauseScreenMode> pauseScreenMode;
     public final ForgeConfigSpec.BooleanValue updateNotification;
-    public final ForgeConfigSpec.BooleanValue forceDirtBackground;
 
     private ClientConfig() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -18,7 +17,6 @@ public class ClientConfig {
         this.modCount = builder.comment("Add mod count to mods button.").define("mod_count", true);
         this.pauseScreenMode = builder.comment("Where to place mods button on pause menu screen.").defineEnum("pause_screen_mods_button", PauseScreenMode.INSERT_BELOW_FEEDBACK_AND_BUGS);
         this.updateNotification = builder.comment("Show a small green orb indicating that mod updates are available.").define("update_notification", false);
-        this.forceDirtBackground = builder.comment("Force a dirt background to show for the mod list screen, even when inside of a world where it would normally be transparent.").define("force_dirt_background", true);
         this.spec = builder.build();
     }
 

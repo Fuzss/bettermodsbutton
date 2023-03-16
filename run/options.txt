@@ -1,5 +1,6 @@
-version:3105
+version:3218
 autoJump:false
+operatorItemsTab:false
 autoSuggestions:true
 chatColors:true
 chatLinks:true
@@ -33,7 +34,7 @@ guiScale:0
 particles:0
 maxFps:120
 graphicsMode:1
-ao:2
+ao:true
 prioritizeChunkUpdates:0
 biomeBlendRadius:2
 renderClouds:"true"
@@ -63,7 +64,7 @@ useNativeTransport:true
 mainHand:"right"
 attackIndicator:1
 narrator:0
-tutorialStep:movement
+tutorialStep:none
 mouseWheelSensitivity:1.0
 rawMouseInput:true
 glDebugVerbosity:1
@@ -75,8 +76,9 @@ hideBundleTutorial:false
 syncChunkWrites:false
 showAutosaveIndicator:true
 allowServerListing:true
-chatPreview:true
 onlyShowSecureChat:false
+panoramaScrollSpeed:1.0
+telemetryOptInExtra:false
 key_key.attack:key.mouse.left
 key_key.use:key.mouse.right
 key_key.forward:key.keyboard.w

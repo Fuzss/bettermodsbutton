@@ -18,16 +18,16 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'eclipse'
 apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 archivesBaseName = rootProject.name
 version = "v${modVersion}-${minecraftVersion}-Forge"
 group = modMavenGroup
 
 minecraft {
-    mappings channel: 'parchment', version: "${parchmentMappingsVersion}-${minecraftVersion}"
+    mappings channel: 'parchment', version: "${parchmentMappingsVersion}-${parchmentMinecraftVersion}"
 //    mappings channel: 'official', version: "${minecraftVersion}"
 
     runs {
@@ -114,13 +114,12 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     // Quality of Life Mods
-    runtimeOnly fg.deobf("curse.maven:catalogue-459701:3873264")
-//    runtimeOnly fg.deobf("fuzs.bettermodsbutton:bettermodsbutton-forge:4.2.0")
-//    runtimeOnly fg.deobf("curse.maven:configmenusforge-544048:3822820")
-//    runtimeOnly fg.deobf("curse.maven:configured-457570:3903908")
+//    runtimeOnly fg.deobf("fuzs.bettermodsbutton:bettermodsbutton-forge:5.0.0")
+    runtimeOnly fg.deobf("curse.maven:catalogue-459701:4171025")
+    runtimeOnly fg.deobf("curse.maven:configured-457570:4166861")
 
     // Puzzles Lib
-//    implementation fg.deobf("fuzs.puzzleslib:puzzleslib-forge:${puzzlesVersion}")
+//    api fg.deobf("fuzs.puzzleslib:puzzleslib-forge:${puzzlesVersion}")
 }
 
 mixin {
@@ -158,8 +157,7 @@ processResources {
     inputs.property "modAuthor", "${modAuthor}"
     inputs.property "minFMLVersion", "${minForgeVersion}".replaceAll("\\..*", "")
     inputs.property "minForgeVersion", "${minForgeVersion}"
-    inputs.property "minMinecraftVersion", "${minMinecraftVersion}"
-    inputs.property "nextMinecraftVersion", rootProject.getNextVersion("${minMinecraftVersion}")
+    inputs.property "minecraftVersion", "${minecraftVersion}"
     inputs.property "minPuzzlesVersion", "${minPuzzlesVersion}"
     inputs.property "packFormat", "${packFormat}"
     inputs.property "modForgeDisplayTest", "${modForgeDisplayTest}"
@@ -178,8 +176,7 @@ processResources {
                 'modAuthor':            "${modAuthor}",
                 'minFMLVersion':        "${minForgeVersion}".replaceAll("\\..*", ""),
                 'minForgeVersion':      "${minForgeVersion}",
-                'minMinecraftVersion':  "${minMinecraftVersion}",
-                'nextMinecraftVersion': rootProject.getNextVersion("${minMinecraftVersion}"),
+                'minecraftVersion':     "${minecraftVersion}",
                 'minPuzzlesVersion':    "${minPuzzlesVersion}",
                 'modForgeDisplayTest':  "${modForgeDisplayTest}"
         )
@@ -299,7 +296,7 @@ curseforge {
 //                requiredDependency 'puzzles-lib'
 //            }
         }
-        addArtifact sourcesJar
+//        addArtifact sourcesJar
     }
     options {
 //        debug = true
@@ -321,7 +318,7 @@ modrinth {
         gameVersions.add it.trim()
     }
     loaders.add 'forge'
-    additionalFiles.add file("${project.buildDir}/libs/${project.archivesBaseName}-${project.version}-sources.jar")
+//    additionalFiles.add file("${project.buildDir}/libs/${project.archivesBaseName}-${project.version}-sources.jar")
 //    dependencies {
 //        required.project 'puzzles-lib'
 //    }
