@@ -32,14 +32,16 @@ repositories {
 }
 
 dependencies {
-    // Include Common Project
-    compileOnly project(":Common")
+    // Common Project
+    compileOnly(project(path: ":Common", configuration: "namedElements")) {
+        transitive = false
+    }
 
     // Minecraft
     minecraft "com.mojang:minecraft:${minecraftVersion}"
     mappings loom.layered() {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${parchmentMinecraftVersion}:${parchmentMappingsVersion}@zip")
+//        parchment("org.parchmentmc.data:parchment-${minecraftVersion}:${parchmentMappingsVersion}@zip")
     }
 
     // Fabric
@@ -47,8 +49,8 @@ dependencies {
     modApi "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
 
     // Quality of Life Mods
-    modLocalRuntime "com.terraformersmc:modmenu:5.0.2"
-    modLocalRuntime "curse.maven:configured-fabric-667378:4166864"
+    modLocalRuntime "com.terraformersmc:modmenu:6.2.2"
+//    modLocalRuntime "curse.maven:configured-fabric-667378:4441611"
 
     // Puzzles Lib
 //    modApi "fuzs.puzzleslib:puzzleslib-fabric:${puzzlesVersion}"
@@ -76,10 +78,7 @@ loom {
 }
 
 processResources {
-    from(project(":Common").sourceSets.main.resources) {
-        // we need to have this in common so that in a non-production environment the common jar is correctly deobfuscated
-        exclude("quilt.mod.json")
-    }
+    from(project(":Common").sourceSets.main.resources)
     from(project(":Forge").file('src/generated/resources')) {
         exclude('.cache/')
     }
@@ -104,12 +103,13 @@ processResources {
     inputs.property "minFabricApiVersion", 		"${minFabricApiVersion}"
     inputs.property "minecraftVersion", 		"${minecraftVersion}"
 	inputs.property "minPuzzlesVersion", 		"${minPuzzlesVersion}"
-    inputs.property "packFormat", 				"${packFormat}"
+    inputs.property "resourcePackFormat",       "${resourcePackFormat}"
+    inputs.property "dataPackFormat", 			"${dataPackFormat}"
 	inputs.property "mainEntryPoint", 			"${project.group}.${rootProject.name}Fabric"
 	inputs.property "clientEntryPoint", 		"${project.group}.client.${rootProject.name}FabricClient"
     inputs.property "modFabricEnvironment", 	"${modFabricEnvironment}"
 
-    // replace stuff in fabric.mod.json and pack.mcmeta
+    // replace stuff in fabric.mod.json
     filesMatching ('fabric.mod.json') {
         expand (
                 'modId':                	"${modId}",
@@ -130,10 +130,12 @@ processResources {
         )
     }
 
+    // replace stuff in pack.mcmeta
     filesMatching ('pack.mcmeta') {
         expand (
                 'modDescription':       "${modDescription}",
-                "packFormat":           "${packFormat}"
+                "resourcePackFormat":   "${resourcePackFormat}",
+                "dataPackFormat":       "${dataPackFormat}"
         )
     }
 }
@@ -213,7 +215,7 @@ curseforge {
             relations {
                 requiredDependency 'fabric-api'
                 requiredDependency 'forge-config-api-port-fabric'
-                requiredDependency 'puzzles-lib'
+//                requiredDependency 'puzzles-lib'
             }
         }
 //        addArtifact sourcesJar
@@ -242,7 +244,7 @@ modrinth {
     dependencies {
         required.project 'fabric-api'
         required.project 'forge-config-api-port'
-        required.project 'puzzles-lib'
+//        required.project 'puzzles-lib'
     }
 //	debugMode = true
 }

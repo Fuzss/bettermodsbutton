@@ -1,7 +1,7 @@
 package fuzs.bettermodsbutton.client;
 
 import fuzs.bettermodsbutton.BetterModsButton;
-import fuzs.bettermodsbutton.client.handler.ModScreenHandler;
+import fuzs.bettermodsbutton.client.handler.ModsButtonHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,8 +17,8 @@ public class BetterModsButtonClient {
     }
 
     private static void registerHandlers() {
-        MinecraftForge.EVENT_BUS.addListener(ModScreenHandler::onScreen$Init$Post);
-        MinecraftForge.EVENT_BUS.addListener(ModScreenHandler::onScreen$Render);
-        MinecraftForge.EVENT_BUS.addListener(ModScreenHandler::onScreen$Closing);
+        MinecraftForge.EVENT_BUS.addListener(ModsButtonHandler::onScreen$Init$Post);
+        MinecraftForge.EVENT_BUS.addListener(ModsButtonHandler::onScreen$Render);
+        MinecraftForge.EVENT_BUS.addListener(ModsButtonHandler::onScreen$Closing);
     }
 }

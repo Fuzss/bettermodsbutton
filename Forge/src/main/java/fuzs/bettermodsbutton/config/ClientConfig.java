@@ -10,6 +10,7 @@ public class ClientConfig {
     public final ForgeConfigSpec.BooleanValue modCount;
     public final ForgeConfigSpec.EnumValue<PauseScreenMode> pauseScreenMode;
     public final ForgeConfigSpec.BooleanValue updateNotification;
+    public final ForgeConfigSpec.IntValue safeArea;
 
     private ClientConfig() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -17,6 +18,7 @@ public class ClientConfig {
         this.modCount = builder.comment("Add mod count to mods button.").define("mod_count", true);
         this.pauseScreenMode = builder.comment("Where to place mods button on pause menu screen.").defineEnum("pause_screen_mods_button", PauseScreenMode.INSERT_BELOW_FEEDBACK_AND_BUGS);
         this.updateNotification = builder.comment("Show a small green orb indicating that mod updates are available.").define("update_notification", false);
+        this.safeArea = builder.comment("Safe area in pixels from screen border for buttons to not be moved to prevent them from going off screen.", "Not effective for vanilla menu layouts, but can be useful when mods add buttons close to the border.").defineInRange("safe_area", 24, 0, Integer.MAX_VALUE);
         this.spec = builder.build();
     }
 
