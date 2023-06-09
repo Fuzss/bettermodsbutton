@@ -42,7 +42,7 @@ public class ModsButtonHandler {
         if (evt.getScreen().getClass() == PauseScreen.class) {
             // this will still be null if we are on an empty pause screen (from pressing F3 + Esc)
             if (modUpdateNotification != null) {
-                modUpdateNotification.render(evt.getPoseStack(), evt.getMouseX(), evt.getMouseY(), evt.getPartialTick());
+                modUpdateNotification.render(evt.getGuiGraphics(), evt.getMouseX(), evt.getMouseY(), evt.getPartialTick());
             }
         }
     }
