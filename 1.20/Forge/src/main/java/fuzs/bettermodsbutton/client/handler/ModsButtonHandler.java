@@ -26,17 +26,25 @@ import java.util.function.Consumer;
 
 public class ModsButtonHandler {
     @Nullable
-    private static TitleScreenModUpdateIndicator modUpdateNotification;
+    private static TitleScreenModUpdateIndicator pauseScreenUpdateIndicator;
 
     @SuppressWarnings("DataFlowIssue")
     public static void onScreen$Init$Post(final ScreenEvent.Init.Post evt) {
+        Screen screen = evt.getScreen();
         // check for exact classes so we only apply to vanilla
-        if (evt.getScreen().getClass() == TitleScreen.class) {
-            handleMainMenu(evt.getScreen().getMinecraft(), evt.getScreen(), evt.getListenersList(), evt::addListener, evt::removeListener);
+        if (screen.getClass() == TitleScreen.class) {
+            handleMainMenu(screen.getMinecraft(), screen, evt.getListenersList(), evt::addListener, evt::removeListener);
             // vanilla's pause screen can be blank, so we don't want to add our button then
-        } else if (evt.getScreen().getClass() == PauseScreen.class) {
-            if (ObfuscationReflectionHelper.<Boolean, PauseScreen>getPrivateValue(PauseScreen.class, (PauseScreen) evt.getScreen(), "f_96306_")) {
-                handlePauseScreen(evt.getScreen().getMinecraft(), evt.getScreen(), evt.getListenersList(), evt::addListener, evt::removeListener);
+        } else if (screen.getClass() == PauseScreen.class) {
+            if (ObfuscationReflectionHelper.<Boolean, PauseScreen>getPrivateValue(PauseScreen.class, (PauseScreen) screen, "f_96306_")) {
+                handlePauseScreen(screen.getMinecraft(), screen, evt.getListenersList(), button -> {
+                    evt.addListener(button);
+                    if (ClientConfig.INSTANCE.updateNotification.get()) {
+                        pauseScreenUpdateIndicator = new TitleScreenModUpdateIndicator(button);
+                        pauseScreenUpdateIndicator.resize(screen.getMinecraft(), screen.width, screen.height);
+                        pauseScreenUpdateIndicator.init();
+                    }
+                }, evt::removeListener);
             }
         }
     }
@@ -44,21 +52,21 @@ public class ModsButtonHandler {
     public static void onScreen$Render(final ScreenEvent.Render evt) {
         if (evt.getScreen().getClass() == PauseScreen.class) {
             // this will still be null if we are on an empty pause screen (from pressing F3 + Esc)
-            if (modUpdateNotification != null) {
-                modUpdateNotification.render(evt.getGuiGraphics(), evt.getMouseX(), evt.getMouseY(), evt.getPartialTick());
+            if (pauseScreenUpdateIndicator != null) {
+                pauseScreenUpdateIndicator.render(evt.getGuiGraphics(), evt.getMouseX(), evt.getMouseY(), evt.getPartialTick());
             }
         }
     }
 
     public static void onScreen$Closing(final ScreenEvent.Closing evt) {
         if (evt.getScreen().getClass() == PauseScreen.class) {
-            modUpdateNotification = null;
+            pauseScreenUpdateIndicator = null;
         }
     }
 
     private static void handleMainMenu(Minecraft minecraft, Screen screen, List<GuiEventListener> children, Consumer<GuiEventListener> addListener, Consumer<GuiEventListener> removeListener) {
         if (ClientConfig.INSTANCE.mainMenuMode.get() == ClientConfig.MainMenuMode.NO_CHANGE) return;
-        final boolean modCount = ClientConfig.INSTANCE.modCount.get();
+        final boolean modCount = ClientConfig.INSTANCE.addModCount.get();
         findButton(children, "fml.menu.mods").ifPresent(removeListener);
         Button modsButton = null;
         switch (ClientConfig.INSTANCE.mainMenuMode.get()) {
@@ -111,76 +119,84 @@ public class ModsButtonHandler {
         ObfuscationReflectionHelper.setPrivateValue(TitleScreen.class, (TitleScreen) screen, TitleScreenModUpdateIndicator.init((TitleScreen) screen, ClientConfig.INSTANCE.updateNotification.get() ? modsButton : null), "modUpdateNotification");
     }
 
-    private static void handlePauseScreen(Minecraft minecraft, Screen screen, List<GuiEventListener> children, Consumer<GuiEventListener> addListener, Consumer<GuiEventListener> removeListener) {
-        if (ClientConfig.INSTANCE.pauseScreenMode.get() == ClientConfig.PauseScreenMode.NONE) return;
-        final boolean modCount = ClientConfig.INSTANCE.modCount.get();
-        Button modsButton = null;
+    private static void handlePauseScreen(Minecraft minecraft, Screen screen, List<GuiEventListener> children, Consumer<Button> addListener, Consumer<GuiEventListener> removeListener) {
+        if (ClientConfig.INSTANCE.pauseScreenMode.get() == ClientConfig.PauseScreenMode.NO_CHANGE) return;
+        findButton(children, "fml.menu.mods").ifPresent(button -> {
+            moveButtonsUpAndDown(screen, children, -12, button.getY());
+            removeListener.accept(button);
+        });
         switch (ClientConfig.INSTANCE.pauseScreenMode.get()) {
             case INSERT_BELOW_FEEDBACK_AND_BUGS -> {
-                moveButtonsUpAndDown(screen, children, screen.height / 4 + 96 - 16);
-                modsButton = Button.builder(buildModsComponent(modCount, false), button -> {
-                    minecraft.setScreen(new ModListScreen(screen));
-                }).bounds(screen.width / 2 - 102, screen.height / 4 + 96 - 16 - 12, 204, 20).build();
+                Button modsButton = tryReplaceButton(minecraft, screen, children, $ -> {}, "menu.options", 204);
+                if (modsButton != null) {
+                    addListener.accept(modsButton);
+                    moveButtonsUpAndDown(screen, children, modsButton.getY());
+                    modsButton.setY(modsButton.getY() - 24);
+                }
             }
             case REPLACE_FEEDBACK -> {
-                findButton(children, "menu.sendFeedback").ifPresent(removeListener);
-                modsButton = Button.builder(buildModsComponent(modCount, true), button -> {
-                    minecraft.setScreen(new ModListScreen(screen));
-                }).bounds(screen.width / 2 - 102, screen.height / 4 + 72 - 16, 98, 20).build();
+                addListener.accept(tryReplaceButton(minecraft, screen, children, removeListener, "menu.sendFeedback"));
             }
             case REPLACE_BUGS -> {
-                findButton(children, "menu.reportBugs").ifPresent(removeListener);
-                modsButton = Button.builder(buildModsComponent(modCount, true), button -> {
-                    minecraft.setScreen(new ModListScreen(screen));
-                }).bounds(screen.width / 2 + 4, screen.height / 4 + 72 - 16, 98, 20).build();
+                addListener.accept(tryReplaceButton(minecraft, screen, children, removeListener, "menu.reportBugs"));
             }
             case REPLACE_FEEDBACK_AND_BUGS -> {
-                findButton(children, "menu.sendFeedback").ifPresent(removeListener);
                 findButton(children, "menu.reportBugs").ifPresent(removeListener);
-                modsButton = Button.builder(buildModsComponent(modCount, false), button -> {
-                    minecraft.setScreen(new ModListScreen(screen));
-                }).bounds(screen.width / 2 - 102, screen.height / 4 + 72 - 16, 204, 20).build();
+                addListener.accept(tryReplaceButton(minecraft, screen, children, removeListener, "menu.sendFeedback",204));
             }
             case REPLACE_AND_MOVE_LAN -> {
                 findButton(children, "menu.sendFeedback").ifPresent(removeListener);
                 findButton(children, "menu.reportBugs").ifPresent(removeListener);
-                findButton(children, "menu.shareToLan").ifPresent(widget -> {
-                    widget.setWidth(204);
-                    widget.setX(screen.width / 2 - 102);
-                    widget.setY(screen.height / 4 + 72 - 16);
+                addListener.accept(tryReplaceButton(minecraft, screen, children, $ -> {}, "menu.shareToLan"));
+                findButton(children, "menu.shareToLan").ifPresent(button -> {
+                    button.setWidth(204);
+                    button.setX(button.getX() - 108);
+                    button.setY(button.getY() - 24);
                 });
-                modsButton = Button.builder(buildModsComponent(modCount, true), button -> {
-                    minecraft.setScreen(new ModListScreen(screen));
-                }).bounds(screen.width / 2 + 4, screen.height / 4 + 96 - 16, 98, 20).build();
             }
             case INSERT_AND_MOVE_LAN -> {
-                moveButtonsUpAndDown(screen, children, screen.height / 4 + 96 - 16);
-                findButton(children, "menu.shareToLan").ifPresent(widget -> {
-                    widget.setWidth(204);
-                    widget.setX(screen.width / 2 - 102);
-                    widget.setY(screen.height / 4 + 96 - 16 - 12);
+                addListener.accept(tryReplaceButton(minecraft, screen, children, $ -> {}, "menu.shareToLan"));
+                findButton(children, "menu.shareToLan").ifPresent(button -> {
+                    moveButtonsUpAndDown(screen, children, button.getY());
+                    button.setWidth(204);
+                    button.setX(button.getX() - 106);
+                    button.setY(button.getY() - 24);
                 });
-                modsButton = Button.builder(buildModsComponent(modCount, true), button -> {
-                    minecraft.setScreen(new ModListScreen(screen));
-                }).bounds(screen.width / 2 + 4, screen.height / 4 + 96 - 16 + 12, 98, 20).build();
             }
         }
-        if (modsButton != null) addListener.accept(modsButton);
-        modUpdateNotification = new TitleScreenModUpdateIndicator(ClientConfig.INSTANCE.updateNotification.get() ? modsButton : null);
-        modUpdateNotification.resize(minecraft, screen.width, screen.height);
-        modUpdateNotification.init();
     }
 
     private static void moveButtonsUpAndDown(Screen screen, List<GuiEventListener> listeners, int splitAt) {
+        moveButtonsUpAndDown(screen, listeners, 12, splitAt);
+    }
+
+    private static void moveButtonsUpAndDown(Screen screen, List<GuiEventListener> listeners, int amount, int splitAt) {
         for (GuiEventListener widget : listeners) {
             if (widget instanceof LayoutElement element && !isElementTooCloseToScreenBorder(element, screen.width, screen.height)) {
                 if (splitAt <= element.getY()) {
-                    element.setY(element.getY() + 12);
+                    element.setY(element.getY() + amount);
                 } else {
-                    element.setY(element.getY() - 12);
+                    element.setY(element.getY() - amount);
                 }
             }
         }
+    }
+
+    @Nullable
+    private static Button tryReplaceButton(Minecraft minecraft, Screen screen, List<GuiEventListener> children, Consumer<GuiEventListener> removeListener, String s) {
+        return tryReplaceButton(minecraft, screen, children, removeListener, s, -1);
+    }
+
+    @Nullable
+    private static Button tryReplaceButton(Minecraft minecraft, Screen screen, List<GuiEventListener> children, Consumer<GuiEventListener> removeListener, String s, int newWidth) {
+        return findButton(children, s).map(button -> {
+            removeListener.accept(button);
+            int width = newWidth != -1 ? newWidth : button.getWidth();
+            Component title = buildModsComponent(ClientConfig.INSTANCE.addModCount.get(), width < 204);
+            return Button.builder(title, $ -> {
+                minecraft.setScreen(new ModListScreen(screen));
+            }).bounds(button.getX(), button.getY(), width, button.getHeight()).build();
+        }).orElse(null);
     }
 
     private static boolean isElementTooCloseToScreenBorder(LayoutElement element, int screenWidth, int screenHeight) {

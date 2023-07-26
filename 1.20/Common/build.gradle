@@ -2,7 +2,6 @@ apply from: 'https://raw.githubusercontent.com/Fuzss/modresources/main/gradle/co
 
 dependencies {
     // Puzzles Lib
-    // TODO
 //    modApi libs.puzzleslib.common
 }
 
