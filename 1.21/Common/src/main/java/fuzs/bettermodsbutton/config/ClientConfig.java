@@ -6,7 +6,7 @@ public interface ClientConfig {
 
     Supplier<MainMenuMode> getMainMenuMode();
 
-    Supplier<Boolean> getAddModCount();
+    Supplier<ModCountMode> getModCountMode();
 
     Supplier<PauseScreenMode> getPauseScreenMode();
 

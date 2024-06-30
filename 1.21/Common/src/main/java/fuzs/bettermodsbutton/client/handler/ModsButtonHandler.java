@@ -1,6 +1,7 @@
 package fuzs.bettermodsbutton.client.handler;
 
 import fuzs.bettermodsbutton.config.MainMenuMode;
+import fuzs.bettermodsbutton.config.ModCountMode;
 import fuzs.bettermodsbutton.config.PauseScreenMode;
 import fuzs.bettermodsbutton.service.ClientAbstractions;
 import net.minecraft.client.Minecraft;
@@ -20,22 +21,21 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ModsButtonHandler {
-    public static final String KEY_MODS_COUNT = "button.mods.count";
-    public static final String KEY_MODS_COUNT_COMPACT = "button.mods.count.compact";
 
     public static void onAfterInitScreen(Minecraft minecraft, Screen screen, List<GuiEventListener> list, Consumer<GuiEventListener> add, Consumer<GuiEventListener> remove) {
         // check for exact classes so we only apply to vanilla
         if (screen instanceof TitleScreen titleScreen && screen.getClass() == TitleScreen.class) {
-            handleMainMenu(minecraft, titleScreen, list, add::accept, remove);
+            handleMainMenu(titleScreen, list, add::accept, remove);
         } else if (screen instanceof PauseScreen pauseScreen && screen.getClass() == PauseScreen.class) {
             // vanilla's pause screen can be blank, so we don't want to add our button then
             if (pauseScreen.showsPauseMenu()) {
-                handlePauseScreen(minecraft, pauseScreen, list, add::accept, remove);
+                handlePauseScreen(pauseScreen, list, add::accept, remove);
             }
         }
     }
 
-    private static void handleMainMenu(Minecraft minecraft, TitleScreen screen, List<GuiEventListener> children, Consumer<Button> addListener, Consumer<GuiEventListener> removeListener) {
+    private static void handleMainMenu(TitleScreen screen, List<GuiEventListener> children, Consumer<Button> addListener, Consumer<GuiEventListener> removeListener) {
+
         if (ClientAbstractions.INSTANCE.getClientConfig().getMainMenuMode().get() == MainMenuMode.NO_CHANGE) {
             return;
         }
@@ -120,7 +120,8 @@ public class ModsButtonHandler {
         setModsButtonComponent(modsButton);
     }
 
-    private static void handlePauseScreen(Minecraft minecraft, PauseScreen screen, List<GuiEventListener> children, Consumer<Button> addListener, Consumer<GuiEventListener> removeListener) {
+    private static void handlePauseScreen(PauseScreen screen, List<GuiEventListener> children, Consumer<Button> addListener, Consumer<GuiEventListener> removeListener) {
+
         if (ClientAbstractions.INSTANCE.getClientConfig().getPauseScreenMode().get() == PauseScreenMode.NO_CHANGE) {
             return;
         }
@@ -283,18 +284,18 @@ public class ModsButtonHandler {
     }
 
     private static void setModsButtonComponent(Button modsButton) {
-        boolean includeCount = ClientAbstractions.INSTANCE.getClientConfig().getAddModCount().get();
-        Component title = getModsComponent(includeCount, modsButton.getWidth() < 200);
+        ModCountMode modCountMode = ClientAbstractions.INSTANCE.getClientConfig().getModCountMode().get();
+        Component title = getModsComponent(modCountMode, modsButton.getWidth() < 200);
         modsButton.setMessage(title);
     }
 
-    private static Component getModsComponent(boolean includeCount, boolean isCompact) {
+    private static Component getModsComponent(ModCountMode modCountMode, boolean isCompact) {
         MutableComponent component = Component.translatable("fml.menu.mods");
-        if (includeCount) {
-            String translationKey = isCompact ? KEY_MODS_COUNT_COMPACT : KEY_MODS_COUNT;
-            component = component.append(" ")
-                    .append(Component.translatable(translationKey, ClientAbstractions.INSTANCE.getModListSize()));
+        String string = modCountMode.getString(isCompact);
+        if (string != null) {
+            return component.append(" (").append(Component.literal(string)).append(")");
+        } else {
+            return component;
         }
-        return component;
     }
 }

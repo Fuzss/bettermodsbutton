@@ -2,8 +2,10 @@ package fuzs.bettermodsbutton.forge.config;
 
 import fuzs.bettermodsbutton.config.ClientConfig;
 import fuzs.bettermodsbutton.config.MainMenuMode;
+import fuzs.bettermodsbutton.config.ModCountMode;
 import fuzs.bettermodsbutton.config.PauseScreenMode;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import java.util.function.Supplier;
 
@@ -12,7 +14,7 @@ public class ForgeClientConfig implements ClientConfig {
 
     private final ForgeConfigSpec spec;
     private final ForgeConfigSpec.EnumValue<MainMenuMode> mainMenuMode;
-    private final ForgeConfigSpec.BooleanValue addModCount;
+    private final ForgeConfigSpec.EnumValue<ModCountMode> modCountMode;
     private final ForgeConfigSpec.EnumValue<PauseScreenMode> pauseScreenMode;
     private final ForgeConfigSpec.IntValue safeArea;
     private final ForgeConfigSpec.BooleanValue collapseBranding;
@@ -22,7 +24,8 @@ public class ForgeClientConfig implements ClientConfig {
         this.mainMenuMode = builder.comment(
                         "Where to place mods button on main menu screen. Select \"NO_CHANGE\" to prevent any changes to the screen, useful for mod compatibility.")
                 .defineEnum("main_menu_mods_button", MainMenuMode.INSERT_BELOW_REALMS);
-        this.addModCount = builder.comment("Add mod count to mods button.").define("add_mod_count", true);
+        this.modCountMode = builder.comment("Add mod count to mods button.")
+                .defineEnum("mod_count_mode", ModCountMode.ADAPTIVE);
         this.pauseScreenMode = builder.comment(
                         "Where to place mods button on pause menu screen. Select \"NO_CHANGE\" to prevent any changes to the screen, useful for mod compatibility.")
                 .defineEnum("pause_screen_mods_button", PauseScreenMode.INSERT_BELOW_FEEDBACK_AND_BUGS);
@@ -32,7 +35,7 @@ public class ForgeClientConfig implements ClientConfig {
         ).defineInRange("safe_area", 24, 0, Integer.MAX_VALUE);
         this.collapseBranding = builder.comment(
                         "Make title screen game branding more compact to prevent overlapping with menu buttons.")
-                .define("collapse_branding", false);
+                .define("collapse_branding", !FMLEnvironment.production);
         this.spec = builder.build();
     }
 
@@ -46,8 +49,8 @@ public class ForgeClientConfig implements ClientConfig {
     }
 
     @Override
-    public Supplier<Boolean> getAddModCount() {
-        return this.addModCount;
+    public Supplier<ModCountMode> getModCountMode() {
+        return this.modCountMode;
     }
 
     @Override

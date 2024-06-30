@@ -9,7 +9,6 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.gui.TitleScreenModUpdateIndicator;
-import net.minecraftforge.common.ForgeI18n;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -64,10 +63,8 @@ public class BetterModsButtonForgeClient {
             try {
                 Field field = BrandingControl.class.getDeclaredField("brandings");
                 field.setAccessible(true);
-                String loadingMods = ForgeI18n.parseMessage("fml.menu.loadingmods",
-                        ClientAbstractions.INSTANCE.getModListSize()
-                );
-                String s = "Minecraft " + DetectedVersion.BUILT_IN.getName() + "/Forge" + " (" + loadingMods + ")";
+                String s = "Minecraft " + DetectedVersion.BUILT_IN.getName() + "/Forge" + " (" +
+                        ClientAbstractions.INSTANCE.getModListMessage("%s Mods") + ")";
                 MethodHandles.lookup().unreflectSetter(field).invoke(Collections.singletonList(s));
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);

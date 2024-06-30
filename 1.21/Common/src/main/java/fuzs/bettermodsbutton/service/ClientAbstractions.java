@@ -13,6 +13,8 @@ public interface ClientAbstractions {
 
     int getModListSize();
 
+    String getModListMessage(String fallback);
+
     @NotNull
     Button getNewModsButton(Screen screen, @Nullable Button oldButton);
 }

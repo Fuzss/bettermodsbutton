@@ -2,7 +2,9 @@ package fuzs.bettermodsbutton.neoforge.config;
 
 import fuzs.bettermodsbutton.config.ClientConfig;
 import fuzs.bettermodsbutton.config.MainMenuMode;
+import fuzs.bettermodsbutton.config.ModCountMode;
 import fuzs.bettermodsbutton.config.PauseScreenMode;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.function.Supplier;
@@ -12,7 +14,7 @@ public class NeoForgeClientConfig implements ClientConfig {
 
     private final ModConfigSpec spec;
     private final ModConfigSpec.EnumValue<MainMenuMode> mainMenuMode;
-    private final ModConfigSpec.BooleanValue addModCount;
+    private final ModConfigSpec.EnumValue<ModCountMode> modCountMode;
     private final ModConfigSpec.EnumValue<PauseScreenMode> pauseScreenMode;
     private final ModConfigSpec.IntValue safeArea;
     private final ModConfigSpec.BooleanValue collapseBranding;
@@ -22,7 +24,8 @@ public class NeoForgeClientConfig implements ClientConfig {
         this.mainMenuMode = builder.comment(
                         "Where to place mods button on main menu screen. Select \"NO_CHANGE\" to prevent any changes to the screen, useful for mod compatibility.")
                 .defineEnum("main_menu_mods_button", MainMenuMode.INSERT_BELOW_REALMS);
-        this.addModCount = builder.comment("Add mod count to mods button.").define("add_mod_count", true);
+        this.modCountMode = builder.comment("Add mod count to mods button.")
+                .defineEnum("mod_count_mode", ModCountMode.ADAPTIVE);
         this.pauseScreenMode = builder.comment(
                         "Where to place mods button on pause menu screen. Select \"NO_CHANGE\" to prevent any changes to the screen, useful for mod compatibility.")
                 .defineEnum("pause_screen_mods_button", PauseScreenMode.INSERT_BELOW_FEEDBACK_AND_BUGS);
@@ -32,7 +35,7 @@ public class NeoForgeClientConfig implements ClientConfig {
         ).defineInRange("safe_area", 24, 0, Integer.MAX_VALUE);
         this.collapseBranding = builder.comment(
                         "Make title screen game branding more compact to prevent overlapping with menu buttons.")
-                .define("collapse_branding", false);
+                .define("collapse_branding", !FMLEnvironment.production);
         this.spec = builder.build();
     }
 
@@ -46,8 +49,8 @@ public class NeoForgeClientConfig implements ClientConfig {
     }
 
     @Override
-    public Supplier<Boolean> getAddModCount() {
-        return this.addModCount;
+    public Supplier<ModCountMode> getModCountMode() {
+        return this.modCountMode;
     }
 
     @Override

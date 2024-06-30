@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraftforge.client.gui.ModListScreen;
+import net.minecraftforge.common.ForgeI18n;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +23,11 @@ public class ForgeClientAbstractions implements ClientAbstractions {
     @Override
     public int getModListSize() {
         return ModList.get().size();
+    }
+
+    @Override
+    public String getModListMessage(String fallback) {
+        return ForgeI18n.parseMessage("fml.menu.loadingmods", this.getModListSize());
     }
 
     @NotNull

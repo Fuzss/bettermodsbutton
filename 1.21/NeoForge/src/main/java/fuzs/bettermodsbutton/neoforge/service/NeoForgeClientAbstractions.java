@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.i18n.FMLTranslations;
 import net.neoforged.neoforge.client.gui.ModListScreen;
 import net.neoforged.neoforge.client.gui.widget.ModsButton;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +23,11 @@ public class NeoForgeClientAbstractions implements ClientAbstractions {
     @Override
     public int getModListSize() {
         return ModList.get().size();
+    }
+
+    @Override
+    public String getModListMessage(String fallback) {
+        return FMLTranslations.parseMessageWithFallback("fml.menu.loadingmods", () -> fallback, this.getModListSize());
     }
 
     @NotNull
