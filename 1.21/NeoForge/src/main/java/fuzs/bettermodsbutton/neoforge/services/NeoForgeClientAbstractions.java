@@ -1,8 +1,8 @@
-package fuzs.bettermodsbutton.neoforge.service;
+package fuzs.bettermodsbutton.neoforge.services;
 
 import fuzs.bettermodsbutton.config.ClientConfig;
 import fuzs.bettermodsbutton.neoforge.config.NeoForgeClientConfig;
-import fuzs.bettermodsbutton.service.ClientAbstractions;
+import fuzs.bettermodsbutton.services.ClientAbstractions;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;

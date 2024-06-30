@@ -3,7 +3,7 @@ package fuzs.bettermodsbutton.client.handler;
 import fuzs.bettermodsbutton.config.MainMenuMode;
 import fuzs.bettermodsbutton.config.ModCountMode;
 import fuzs.bettermodsbutton.config.PauseScreenMode;
-import fuzs.bettermodsbutton.service.ClientAbstractions;
+import fuzs.bettermodsbutton.services.ClientAbstractions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;

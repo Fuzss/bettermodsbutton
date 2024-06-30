@@ -2,7 +2,7 @@ package fuzs.bettermodsbutton.neoforge.client;
 
 import fuzs.bettermodsbutton.BetterModsButton;
 import fuzs.bettermodsbutton.client.handler.ModsButtonHandler;
-import fuzs.bettermodsbutton.service.ClientAbstractions;
+import fuzs.bettermodsbutton.services.ClientAbstractions;
 import net.minecraft.DetectedVersion;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;

@@ -1,9 +1,9 @@
-package fuzs.bettermodsbutton.forge.service;
+package fuzs.bettermodsbutton.forge.services;
 
 import fuzs.bettermodsbutton.config.ClientConfig;
 import fuzs.bettermodsbutton.forge.client.gui.components.ModsButton;
 import fuzs.bettermodsbutton.forge.config.ForgeClientConfig;
-import fuzs.bettermodsbutton.service.ClientAbstractions;
+import fuzs.bettermodsbutton.services.ClientAbstractions;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;

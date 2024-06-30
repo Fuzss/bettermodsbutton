@@ -1,4 +1,4 @@
-package fuzs.bettermodsbutton.service;
+package fuzs.bettermodsbutton.services;
 
 import fuzs.bettermodsbutton.config.ClientConfig;
 import net.minecraft.client.gui.components.Button;

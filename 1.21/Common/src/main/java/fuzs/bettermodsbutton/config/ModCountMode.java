@@ -1,6 +1,6 @@
 package fuzs.bettermodsbutton.config;
 
-import fuzs.bettermodsbutton.service.ClientAbstractions;
+import fuzs.bettermodsbutton.services.ClientAbstractions;
 import org.jetbrains.annotations.Nullable;
 
 public enum ModCountMode {
