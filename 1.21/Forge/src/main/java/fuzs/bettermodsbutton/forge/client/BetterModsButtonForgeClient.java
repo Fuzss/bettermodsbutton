@@ -61,11 +61,14 @@ public class BetterModsButtonForgeClient {
         if (!ClientAbstractions.INSTANCE.getClientConfig().getCollapseBranding().get()) return;
         if (screen.getClass() == TitleScreen.class) {
             try {
-                Field field = BrandingControl.class.getDeclaredField("brandings");
-                field.setAccessible(true);
+                Field brandings = BrandingControl.class.getDeclaredField("brandings");
+                brandings.setAccessible(true);
                 String s = "Minecraft " + DetectedVersion.BUILT_IN.getName() + "/Forge" + " (" +
                         ClientAbstractions.INSTANCE.getModListMessage("%s Mods") + ")";
-                MethodHandles.lookup().unreflectSetter(field).invoke(Collections.singletonList(s));
+                MethodHandles.lookup().unreflectSetter(brandings).invoke(Collections.singletonList(s));
+                Field overCopyrightBrandings = BrandingControl.class.getDeclaredField("overCopyrightBrandings");
+                overCopyrightBrandings.setAccessible(true);
+                MethodHandles.lookup().unreflectSetter(overCopyrightBrandings).invoke(Collections.emptyList());
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
