@@ -26,8 +26,8 @@ public class ForgeClientAbstractions implements ClientAbstractions {
     }
 
     @Override
-    public String getModListMessage(String fallback) {
-        return ForgeI18n.parseMessage("fml.menu.loadingmods", this.getModListSize());
+    public String getModListMessage() {
+        return " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", this.getModListSize()) + ")";
     }
 
     @NotNull

@@ -26,8 +26,10 @@ public class NeoForgeClientAbstractions implements ClientAbstractions {
     }
 
     @Override
-    public String getModListMessage(String fallback) {
-        return FMLTranslations.parseMessageWithFallback("fml.menu.loadingmods", () -> fallback, this.getModListSize());
+    public String getModListMessage() {
+        return FMLTranslations.parseMessageWithFallback("fml.menu.branding", () -> {
+            return " (" + FMLTranslations.parseMessageWithFallback("fml.menu.loadingmods", () -> "%s mods", this.getModListSize()) + ")";
+        }, "", this.getModListSize());
     }
 
     @NotNull

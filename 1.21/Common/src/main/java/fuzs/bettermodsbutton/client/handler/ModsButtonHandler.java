@@ -51,6 +51,11 @@ public class ModsButtonHandler {
         Button realmsButton = findButton(children, "menu.online");
         int fallbackRealmsButtonY = screen.height / 4 + 48 + 24 * 2;
 
+        if (realmsButton != null && modsButton.getY() != realmsButton.getY()) {
+            moveButtonsUpAndDown(screen, children, -11, modsButton.getY());
+            moveButtonsUpAndDown(screen, children, 5, 0);
+        }
+
         switch (ClientAbstractions.INSTANCE.getClientConfig().getMainMenuMode().get()) {
             case INSERT_BELOW_REALMS -> {
                 moveButtonsUpAndDown(screen, children, modsButton.getY() + modsButton.getHeight());
@@ -293,7 +298,7 @@ public class ModsButtonHandler {
         MutableComponent component = Component.translatable("fml.menu.mods");
         String string = modCountMode.getString(isCompact);
         if (string != null) {
-            return component.append(" (").append(Component.literal(string)).append(")");
+            return component.append(Component.literal(string));
         } else {
             return component;
         }

@@ -11,9 +11,9 @@ public enum ModCountMode {
         if (this == NONE) {
             return null;
         } else if (isCompact || this == COMPACT) {
-            return String.valueOf(ClientAbstractions.INSTANCE.getModListSize());
+            return " (" + ClientAbstractions.INSTANCE.getModListSize() + ")";
         } else {
-            return ClientAbstractions.INSTANCE.getModListMessage("%s Loaded");
+            return ClientAbstractions.INSTANCE.getModListMessage();
         }
     }
 }

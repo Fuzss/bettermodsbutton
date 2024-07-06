@@ -36,11 +36,27 @@ public class BetterModsButtonForgeClient {
                     evt::addListener,
                     evt::removeListener
             );
+            setCollapsedBrandingControl(evt.getScreen());
             disableModUpdateNotification(evt.getScreen());
         });
-        eventBus.addListener((final ScreenEvent.Opening evt) -> {
-            setCollapsedBrandingControl(evt.getScreen());
-        });
+    }
+
+    private static void setCollapsedBrandingControl(Screen screen) {
+        if (!ClientAbstractions.INSTANCE.getClientConfig().getCollapseBranding().get()) return;
+        if (screen.getClass() == TitleScreen.class) {
+            try {
+                Field brandings = BrandingControl.class.getDeclaredField("brandings");
+                brandings.setAccessible(true);
+                String s = "Minecraft " + DetectedVersion.BUILT_IN.getName() + "/Forge" +
+                        ClientAbstractions.INSTANCE.getModListMessage();
+                MethodHandles.lookup().unreflectSetter(brandings).invoke(Collections.singletonList(s));
+                Field overCopyrightBrandings = BrandingControl.class.getDeclaredField("overCopyrightBrandings");
+                overCopyrightBrandings.setAccessible(true);
+                MethodHandles.lookup().unreflectSetter(overCopyrightBrandings).invoke(Collections.emptyList());
+            } catch (Throwable throwable) {
+                BetterModsButton.LOGGER.error("Unable to set collapsed branding control", throwable);
+            }
+        }
     }
 
     private static void disableModUpdateNotification(Screen screen) {
@@ -52,25 +68,7 @@ public class BetterModsButtonForgeClient {
                         .unreflectSetter(modUpdateNotificationField)
                         .invoke(screen, new TitleScreenModUpdateIndicator(null));
             } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        }
-    }
-
-    private static void setCollapsedBrandingControl(Screen screen) {
-        if (!ClientAbstractions.INSTANCE.getClientConfig().getCollapseBranding().get()) return;
-        if (screen.getClass() == TitleScreen.class) {
-            try {
-                Field brandings = BrandingControl.class.getDeclaredField("brandings");
-                brandings.setAccessible(true);
-                String s = "Minecraft " + DetectedVersion.BUILT_IN.getName() + "/Forge" + " (" +
-                        ClientAbstractions.INSTANCE.getModListMessage("%s Mods") + ")";
-                MethodHandles.lookup().unreflectSetter(brandings).invoke(Collections.singletonList(s));
-                Field overCopyrightBrandings = BrandingControl.class.getDeclaredField("overCopyrightBrandings");
-                overCopyrightBrandings.setAccessible(true);
-                MethodHandles.lookup().unreflectSetter(overCopyrightBrandings).invoke(Collections.emptyList());
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
+                BetterModsButton.LOGGER.error("Unable to disable mod update notification", throwable);
             }
         }
     }
