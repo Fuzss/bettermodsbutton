@@ -34,8 +34,7 @@ public final class ConfigTranslationsManager {
                         }
                         TRANSLATIONS.forEach(clientLanguage.storage::putIfAbsent);
                     }
-                }
-        );
+                });
     }
 
     public static void addModConfig(ModConfig modConfig) {
@@ -51,7 +50,7 @@ public final class ConfigTranslationsManager {
     }
 
     static void addConfigValues(String modId, UnmodifiableConfig config, List<String> path, Function<List<String>, @Nullable String> levelCommentGetter) {
-        for (Map.Entry<String, Object> entry : config.valueMap().entrySet()) {
+        for (UnmodifiableConfig.Entry entry : config.entrySet()) {
             addConfigValue(modId, entry.getKey());
             String comment;
             if (entry.getValue() instanceof ModConfigSpec.ValueSpec valueSpec) {
@@ -81,8 +80,7 @@ public final class ConfigTranslationsManager {
                 .toLowerCase();
         TRANSLATIONS.put(modId + ".configuration.section." + fileName, configType + " Settings");
         TRANSLATIONS.put(modId + ".configuration.section." + fileName + ".title",
-                "%s " + configType + " Configuration"
-        );
+                "%s " + configType + " Configuration");
     }
 
     public static void addConfigValue(String modId, String valueName) {
@@ -96,9 +94,9 @@ public final class ConfigTranslationsManager {
 
     public static void addConfigValueComment(String modId, String valueName, @Nullable String comment) {
         Objects.requireNonNull(valueName, "value name is null");
-        addConfigValueComment(modId, Collections.singletonList(valueName),
-                comment != null ? Arrays.asList(comment.split("\\R")) : Collections.emptyList()
-        );
+        addConfigValueComment(modId,
+                Collections.singletonList(valueName),
+                comment != null ? Arrays.asList(comment.split("\\R")) : Collections.emptyList());
     }
 
     public static void addConfigValueComment(String modId, List<String> valuePath, List<String> comments) {
