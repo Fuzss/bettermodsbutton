@@ -10,6 +10,5 @@ pluginManagement {
 
 include "Common"
 include "NeoForge"
-include "Forge"
 
 apply from: "https://raw.githubusercontent.com/Fuzss/modresources/main/gradle/v2/settings.gradle"

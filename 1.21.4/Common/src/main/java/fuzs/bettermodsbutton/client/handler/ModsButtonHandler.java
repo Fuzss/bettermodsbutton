@@ -67,10 +67,10 @@ public class ModsButtonHandler {
                     modsButton.setY(realmsButton.getY() + 24);
                     realmsButton.setWidth(200);
                     realmsButton.setX(screen.width / 2 - 100);
-                    // move realms notification widget up by 12 pixels as the button itself, seems to be the easiest way without having to rewrite code
+                    // move realms notification widget up like the button itself, seems to be the easiest way without having to rewrite code
                     if (screen.realmsNotificationsScreen != null) {
                         // height is only used for widget placement, it is divided by 4
-                        screen.realmsNotificationsScreen.height -= 48;
+                        screen.realmsNotificationsScreen.height += 16;
                     }
                 } else {
                     modsButton.setY(fallbackRealmsButtonY + 24);
@@ -83,6 +83,7 @@ public class ModsButtonHandler {
                     modsButton.setY(realmsButton.getY());
                     realmsButton.setWidth(98);
                     realmsButton.setX(screen.width / 2 + 2);
+                    screen.realmsNotificationsScreen = null;
                 } else {
                     modsButton.setY(fallbackRealmsButtonY);
                 }
@@ -94,10 +95,7 @@ public class ModsButtonHandler {
                     modsButton.setY(realmsButton.getY());
                     realmsButton.setWidth(98);
                     realmsButton.setX(screen.width / 2 - 100);
-                    if (screen.realmsNotificationsScreen != null) {
-                        // width is only used for widget placement, it is divided by 2
-                        screen.realmsNotificationsScreen.width -= 204;
-                    }
+                    screen.realmsNotificationsScreen = null;
                 } else {
                     modsButton.setY(fallbackRealmsButtonY);
                 }
@@ -108,9 +106,7 @@ public class ModsButtonHandler {
                     modsButton.setWidth(200);
                     modsButton.setX(screen.width / 2 - 100);
                     removeListener.accept(realmsButton);
-                    if (screen.realmsNotificationsScreen != null) {
-                        screen.realmsNotificationsScreen = null;
-                    }
+                    screen.realmsNotificationsScreen = null;
                 } else {
                     initButtonProperties(modsButton, screen.width / 2 - 100, fallbackRealmsButtonY, 200, 20);
                 }
