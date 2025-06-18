@@ -87,8 +87,8 @@ public class BetterModsButtonNeoForgeClient {
             try {
                 Field brandings = BrandingControl.class.getDeclaredField("brandings");
                 brandings.setAccessible(true);
-                String s = "Minecraft " + DetectedVersion.BUILT_IN.getName() + "/" + ForgeSnapshotsMod.BRANDING_NAME +
-                        ClientAbstractions.INSTANCE.getModListMessage();
+                String s = "Minecraft " + DetectedVersion.BUILT_IN.name() + "/" + ForgeSnapshotsMod.BRANDING_NAME
+                        + ClientAbstractions.INSTANCE.getModListMessage();
                 MethodHandles.lookup().unreflectSetter(brandings).invoke(Collections.singletonList(s));
                 Field overCopyrightBrandings = BrandingControl.class.getDeclaredField("overCopyrightBrandings");
                 overCopyrightBrandings.setAccessible(true);
