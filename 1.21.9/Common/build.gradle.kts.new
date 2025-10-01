@@ -1,0 +1,23 @@
+plugins {
+    alias(libs.plugins.architecturyloom)
+}
+
+// Expose all project properties via extraProperties
+project.properties.forEach { (key, value) ->
+    project.extensions.extraProperties[key] = value
+}
+
+// Also expose libs explicitly (version catalog isn't a regular property)
+project.extensions.extraProperties["libs"] = libs
+
+//apply(from = "https://raw.githubusercontent.com/Fuzss/modresources/main/gradle/${libs.versions.minecraft.get()}/common.gradle.kts")
+apply(from = "/Users/henning/Lokal/GitHub/modresources/gradle/1.21.9/common.gradle.kts")
+
+dependencies {
+    // Puzzles Lib
+//    modApi(libs.puzzleslib.common)
+}
+
+//tasks.withType<net.fabricmc.loom.task.AbstractRemapJarTask>().configureEach {
+//    targetNamespace.set("named")
+//}

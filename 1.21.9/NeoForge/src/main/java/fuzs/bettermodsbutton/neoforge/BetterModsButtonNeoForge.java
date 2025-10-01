@@ -16,24 +16,20 @@ public class BetterModsButtonNeoForge {
 
     public BetterModsButtonNeoForge(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.CLIENT, NeoForgeClientConfig.INSTANCE.getSpec());
-        registerLoadingHandlers(modContainer.getEventBus(), modContainer.getModInfo().getDescription());
+        registerLoadingHandlers(modContainer.getEventBus());
     }
 
-    private static void registerLoadingHandlers(IEventBus eventBus, String modDescription) {
+    private static void registerLoadingHandlers(IEventBus eventBus) {
         eventBus.addListener((final GatherDataEvent.Client event) -> {
             event.getGenerator()
                     .addProvider(true,
                             PackMetadataGenerator.forFeaturePack(event.getGenerator().getPackOutput(),
-                                    Component.literal(modDescription)));
+                                    Component.literal(event.getModContainer().getModInfo().getDescription())));
         });
     }
 
-    public static boolean isDevelopmentEnvironment() {
-        return isDevelopmentEnvironment(BetterModsButton.MOD_ID);
-    }
-
     public static boolean isDevelopmentEnvironment(String modId) {
-        if (FMLEnvironment.production) {
+        if (FMLEnvironment.isProduction()) {
             return false;
         } else {
             return Boolean.getBoolean(modId + ".isDevelopmentEnvironment");

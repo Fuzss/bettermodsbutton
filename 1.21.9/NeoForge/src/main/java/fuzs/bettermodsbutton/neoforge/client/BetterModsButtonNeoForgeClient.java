@@ -6,7 +6,7 @@ import fuzs.bettermodsbutton.client.handler.ModsButtonHandler;
 import fuzs.bettermodsbutton.neoforge.BetterModsButtonNeoForge;
 import fuzs.bettermodsbutton.neoforge.client.config.ConfigTranslationsManager;
 import fuzs.bettermodsbutton.services.ClientAbstractions;
-import net.minecraft.DetectedVersion;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -57,7 +57,10 @@ public class BetterModsButtonNeoForgeClient {
     }
 
     private static void setupDevelopmentEnvironment() {
-        if (!BetterModsButtonNeoForge.isDevelopmentEnvironment()) return;
+        if (!BetterModsButtonNeoForge.isDevelopmentEnvironment(BetterModsButton.MOD_ID)) {
+            return;
+        }
+
         NeoForge.EVENT_BUS.addListener((final ScreenEvent.Render.Post evt) -> {
             if (evt.getScreen() instanceof TitleScreen titleScreen && titleScreen.realmsNotificationsScreen != null) {
                 // manually render realms icons, so we can check they are positioned correctly
@@ -82,13 +85,16 @@ public class BetterModsButtonNeoForgeClient {
     }
 
     private static void setCollapsedBrandingControl(Screen screen) {
-        if (!ClientAbstractions.INSTANCE.getClientConfig().getCollapseBranding().get()) return;
+        if (!ClientAbstractions.INSTANCE.getClientConfig().getCollapseBranding().get()) {
+            return;
+        }
+
         if (screen.getClass() == TitleScreen.class) {
             try {
                 Field brandings = BrandingControl.class.getDeclaredField("brandings");
                 brandings.setAccessible(true);
-                String s = "Minecraft " + DetectedVersion.BUILT_IN.name() + "/" + ForgeSnapshotsMod.BRANDING_NAME
-                        + ClientAbstractions.INSTANCE.getModListMessage();
+                String s = "Minecraft " + SharedConstants.getCurrentVersion().name() + "/"
+                        + ForgeSnapshotsMod.BRANDING_NAME + ClientAbstractions.INSTANCE.getModListMessage();
                 MethodHandles.lookup().unreflectSetter(brandings).invoke(Collections.singletonList(s));
                 Field overCopyrightBrandings = BrandingControl.class.getDeclaredField("overCopyrightBrandings");
                 overCopyrightBrandings.setAccessible(true);
