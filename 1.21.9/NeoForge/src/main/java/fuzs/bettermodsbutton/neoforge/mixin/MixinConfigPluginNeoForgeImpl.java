@@ -2,7 +2,7 @@ package fuzs.bettermodsbutton.neoforge.mixin;
 
 import com.google.common.collect.ImmutableSet;
 import fuzs.bettermodsbutton.BetterModsButton;
-import fuzs.bettermodsbutton.neoforge.BetterModsButtonNeoForge;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -26,8 +26,16 @@ public class MixinConfigPluginNeoForgeImpl implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return BetterModsButtonNeoForge.isDevelopmentEnvironment(BetterModsButton.MOD_ID)
+        return this.isDevelopmentEnvironment(BetterModsButton.MOD_ID)
                 || !DEVELOPMENT_MIXINS.contains(mixinClassName.replaceAll(".+\\.mixin\\.", ""));
+    }
+
+    private boolean isDevelopmentEnvironment(String modId) {
+        if (FMLEnvironment.isProduction()) {
+            return false;
+        } else {
+            return Boolean.getBoolean(modId + ".isDevelopmentEnvironment");
+        }
     }
 
     @Override
