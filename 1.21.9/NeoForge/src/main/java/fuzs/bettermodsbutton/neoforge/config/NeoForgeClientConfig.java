@@ -5,7 +5,7 @@ import fuzs.bettermodsbutton.config.ClientConfig;
 import fuzs.bettermodsbutton.config.MainMenuMode;
 import fuzs.bettermodsbutton.config.ModCountMode;
 import fuzs.bettermodsbutton.config.PauseScreenMode;
-import fuzs.bettermodsbutton.neoforge.BetterModsButtonNeoForge;
+import fuzs.bettermodsbutton.services.ClientAbstractions;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.function.Supplier;
@@ -37,7 +37,7 @@ public class NeoForgeClientConfig implements ClientConfig {
         this.collapseBranding = builder.comment(
                         "Make title screen game branding more compact to prevent overlapping with menu buttons.")
                 .define("collapse_branding",
-                        BetterModsButtonNeoForge.isDevelopmentEnvironment(BetterModsButton.MOD_ID));
+                        ClientAbstractions.INSTANCE.isDevelopmentEnvironment(BetterModsButton.MOD_ID));
         this.spec = builder.build();
     }
 

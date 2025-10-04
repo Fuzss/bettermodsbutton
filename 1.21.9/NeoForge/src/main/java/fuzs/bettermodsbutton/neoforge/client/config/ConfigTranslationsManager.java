@@ -1,7 +1,7 @@
 package fuzs.bettermodsbutton.neoforge.client.config;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import fuzs.bettermodsbutton.BetterModsButtonMod;
+import fuzs.bettermodsbutton.BetterModsButton;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.ClientLanguage;
 import net.minecraft.locale.Language;
@@ -26,7 +26,7 @@ public final class ConfigTranslationsManager {
     }
 
     public static void onAddResourcePackReloadListeners(BiConsumer<ResourceLocation, PreparableReloadListener> consumer) {
-        consumer.accept(BetterModsButtonMod.id("config_translations"),
+        consumer.accept(BetterModsButton.id("config_translations"),
                 (ResourceManagerReloadListener) (ResourceManager resourceManager) -> {
                     if (Language.getInstance() instanceof ClientLanguage clientLanguage) {
                         if (!(clientLanguage.storage instanceof HashMap<String, String>)) {

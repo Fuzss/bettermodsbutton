@@ -3,7 +3,6 @@ package fuzs.bettermodsbutton.neoforge.client;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import fuzs.bettermodsbutton.BetterModsButton;
 import fuzs.bettermodsbutton.client.handler.ModsButtonHandler;
-import fuzs.bettermodsbutton.neoforge.BetterModsButtonNeoForge;
 import fuzs.bettermodsbutton.neoforge.client.config.ConfigTranslationsManager;
 import fuzs.bettermodsbutton.services.ClientAbstractions;
 import net.minecraft.SharedConstants;
@@ -57,7 +56,7 @@ public class BetterModsButtonNeoForgeClient {
     }
 
     private static void setupDevelopmentEnvironment() {
-        if (!BetterModsButtonNeoForge.isDevelopmentEnvironment(BetterModsButton.MOD_ID)) {
+        if (!ClientAbstractions.INSTANCE.isDevelopmentEnvironment(BetterModsButton.MOD_ID)) {
             return;
         }
 

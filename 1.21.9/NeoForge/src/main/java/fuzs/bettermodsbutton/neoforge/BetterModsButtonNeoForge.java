@@ -8,7 +8,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @Mod(BetterModsButton.MOD_ID)
@@ -26,13 +25,5 @@ public class BetterModsButtonNeoForge {
                             PackMetadataGenerator.forFeaturePack(event.getGenerator().getPackOutput(),
                                     Component.literal(event.getModContainer().getModInfo().getDescription())));
         });
-    }
-
-    public static boolean isDevelopmentEnvironment(String modId) {
-        if (FMLEnvironment.isProduction()) {
-            return false;
-        } else {
-            return Boolean.getBoolean(modId + ".isDevelopmentEnvironment");
-        }
     }
 }

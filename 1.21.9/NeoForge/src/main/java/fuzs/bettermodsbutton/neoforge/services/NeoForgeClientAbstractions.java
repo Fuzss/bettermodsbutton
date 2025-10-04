@@ -8,12 +8,18 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.i18n.FMLTranslations;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.ModListScreen;
 import net.neoforged.neoforge.client.gui.widget.ModsButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NeoForgeClientAbstractions implements ClientAbstractions {
+
+    @Override
+    public boolean isDevelopmentEnvironment() {
+        return !FMLEnvironment.isProduction();
+    }
 
     @Override
     public ClientConfig getClientConfig() {
@@ -28,15 +34,16 @@ public class NeoForgeClientAbstractions implements ClientAbstractions {
     @Override
     public String getModListMessage() {
         return FMLTranslations.parseMessageWithFallback("fml.menu.branding", () -> {
-            return " (" + FMLTranslations.parseMessageWithFallback("fml.menu.loadingmods", () -> "%s mods", this.getModListSize()) + ")";
+            return " (" + FMLTranslations.parseMessageWithFallback("fml.menu.loadingmods",
+                    () -> "%s mods",
+                    this.getModListSize()) + ")";
         }, "", this.getModListSize());
     }
 
     @NotNull
     @Override
     public Button getNewModsButton(Screen screen, @Nullable Button oldButton) {
-        return oldButton != null ?
-                oldButton :
+        return oldButton != null ? oldButton :
                 new ModsButton(Button.builder(CommonComponents.EMPTY, (Button button) -> {
                     screen.getMinecraft().setScreen(new ModListScreen(screen));
                 }).pos(screen.width / 2 - 100, screen.height / 4 + 48 + 48).size(200, 20));
