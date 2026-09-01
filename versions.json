@@ -1,8 +1,21 @@
 {
-  "published": true,
   "branches": {
-    "26.1.x": "fixes",
+    "1.20.1": "fixes",
     "1.21.1": "fixes",
-    "1.20.1": "fixes"
-  }
+    "26.1.x": "primary"
+  },
+  "distributions": {
+    "curseforge": {
+      "id": "541584",
+      "slug": "better-mods-button"
+    },
+    "github": {
+      "slug": "better-mods-button"
+    },
+    "modrinth": {
+      "id": "KUZAAwdD",
+      "slug": "better-mods-button"
+    }
+  },
+  "published": true
 }
